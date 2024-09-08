@@ -1,9 +1,8 @@
 import { useState } from 'react'
-import reactLogo from '@/assets/react.svg'
-import viteLogo from '/vite.svg'
 import './Aapp.css'
 import { ModeToggle } from '@/components/mode-toggle'
 import { Button } from '@/components/ui/button'
+import Auth from '../auth/Auth'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -11,7 +10,7 @@ function App() {
   return (
     <>
       <h1>Vite + React</h1>
-      <div className="card">
+      <div className="">
         <Button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </Button>
@@ -23,6 +22,10 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <div className='mt-2 items-center justify-center'>
+        <Auth />
+      </div>
+
     </>
   )
 }
