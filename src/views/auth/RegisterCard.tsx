@@ -25,23 +25,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from '@/components/ui/checkbox'
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 
 type CardProps = ComponentProps<typeof Card>
-
-const notifications = [
-  {
-    title: "Your call has been confirmed.",
-    description: "1 hour ago",
-  },
-  {
-    title: "You have a new message!",
-    description: "1 hour ago",
-  },
-  {
-    title: "Your subscription is expiring soon!",
-    description: "2 hours ago",
-  },
-]
 
 interface RegisterProps extends CardProps {
   onSwitchToLogin: () => void;
@@ -61,11 +47,25 @@ const formSchema = z
   });
 
 async function onSubmit(values: z.infer<typeof formSchema>) {
-  console.log(values)
+  console.log(values);
+  const auth = getAuth();
+  createUserWithEmailAndPassword(auth, values.email, values.password)
+    .then((userCredential) => {
+      const userCreds = userCredential.user;
+      console.log(userCreds);
+      console.log("Created user: ", userCredential);
+    })
+    .catch((error) => {
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      console.log(`Error ${errorCode} Create user : ${errorMessage}`);
+
+    });
 }
 
 function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
   const [error, setError] = useState('')
+  let userCreds;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

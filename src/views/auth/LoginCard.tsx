@@ -9,9 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
 import './Auth.css'
-import { BellRing, Check } from "lucide-react"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
@@ -25,9 +23,12 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { getAuth, signInWithCustomToken, signInWithEmailAndPassword } from 'firebase/auth'
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
+import { ToastAction } from "@/components/ui/toast"
 
 type CardProps = ComponentProps<typeof Card>
-
 
 interface LoginProps extends CardProps {
   onSwitchToRegister: () => void
@@ -39,7 +40,8 @@ const formSchema = z.object({
 })
 
 function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
-
+  const navigate = useNavigate();
+  const { toast } = useToast();
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -51,6 +53,31 @@ function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values)
+    const auth = getAuth()
+    signInWithEmailAndPassword(auth, values.employee_id, values.password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        console.log(user);
+        toast({
+          variant: "default",
+          title: "Successfully Logged in",
+        })
+        navigate('/home')
+        // ...
+      })
+      .catch((error) => {
+        form.reset();
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+          action: <ToastAction altText="Try again">Try again</ToastAction>,
+        })
+        console.log(`Error ${errorCode} Login : ${errorMessage}`);
+      })
   }
   return (
     <Card className={cn(className)} {...props}>
@@ -68,9 +95,9 @@ function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
                 name="employee_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>Email / EmployeeID</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input type='email' {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -97,7 +124,7 @@ function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
               <Button type="submit">Submit</Button>
               <div className='flex flex-row justify-center items-center gap-x-2'>
                 <p>Don't have an account?</p>
-                <Button className='m-0 p-0 text-purple-700' variant="link" onClick={() => onSwitchToRegister()}>Log In</Button>
+                <Button className='m-0 p-0 text-purple-700' variant="link" onClick={() => onSwitchToRegister()}>Sign Up</Button>
               </div>
             </div>
           </form>
