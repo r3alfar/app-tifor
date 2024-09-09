@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../auth/AuthContext'
 import { getAuth, signOut } from 'firebase/auth'
+import './Home.css'
 
 function Home() {
   const navigate = useNavigate()
@@ -36,24 +37,27 @@ function Home() {
   }
 
   return (
-    <div className='flex justify-center items-center h-screen'>
-      <div
-        className="flex flex-col text-center"
-      >
-        <h1
-          className="font-semibold text-3xl"
-        >Welcome,</h1>
-        <h1
-          className="font-extrabold text-9xl"
-        >User</h1>
-        <Button
-          className="mt-6"
-          type="submit"
-          onClick={() => onLogout()}
-        >Logout</Button>
-      </div>
+    <main className='flex items-center justify-center min-h-[calc(100vh-64px)]'>
+      <div className='text-center'>
+        <div
+          className="flex flex-col "
+        >
+          <h1
+            className="font-semibold"
+          >Welcome,</h1>
+          <h1
+            className="font-extrabold "
+          >User</h1>
+          <Button
+            className="mt-6"
+            type="submit"
+            onClick={() => onLogout()}
+          >Logout</Button>
+        </div>
 
-    </div>
+      </div>
+    </main>
+
   )
 }
 

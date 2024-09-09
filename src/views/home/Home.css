@@ -1,0 +1,66 @@
+/* General styling for text */
+h1 {
+  font-size: 2rem;
+  /* Default size for larger screens */
+}
+
+h2 {
+  font-size: 1.5rem;
+}
+
+/* Responsive adjustments for phones and smaller screens */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 1rem;
+    /* Half the original size for tablet and phone users */
+  }
+
+  h2 {
+    font-size: 0.75rem;
+    /* Half the original size for tablet and phone users */
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 0.85rem;
+    /* Slightly smaller adjustments for very small screens */
+  }
+
+  h2 {
+    font-size: 0.65rem;
+  }
+}
+
+/* Specific styles for Home component */
+.font-semibold {
+  font-size: 3rem;
+  /* Default size for larger screens */
+}
+
+.font-extrabold {
+  font-size: 9rem;
+}
+
+@media (max-width: 768px) {
+  .font-semibold {
+    font-size: 1.5rem;
+    /* Reduced size for smaller screens */
+  }
+
+  .font-extrabold {
+    font-size: 4.5rem;
+    /* Reduced size by half for smaller screens */
+  }
+}
+
+@media (max-width: 480px) {
+  .font-semibold {
+    font-size: 1.2rem;
+    /* Further adjustment for very small screens */
+  }
+
+  .font-extrabold {
+    font-size: 4rem;
+  }
+}

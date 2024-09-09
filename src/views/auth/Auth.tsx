@@ -15,11 +15,11 @@ function Auth() {
       <div className="card-width">
         {
           isRegister ?
-            <h1>Sign Up</h1>
+            <h1 className='font-extrabold text-5xl'>Sign Up</h1>
             :
             <>
-              <h1>Hello,</h1>
-              <h2>Welcome Back</h2>
+              <h1 className='font-semibold'>Hello,</h1>
+              <h2 className='font-extrabold text-3xl'>Welcome Back</h2>
             </>
         }
 
