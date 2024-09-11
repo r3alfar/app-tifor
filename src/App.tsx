@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom'
 import Home from './views/home/Home'
 import Auth from './views/auth/Auth'
 import MyNavbar from './components/custom/myNavbar'
@@ -20,7 +20,7 @@ function App() {
           <Routes>
             <Route path='' element={<Auth />} />
             <Route path='/home' element={<NavbarWrapper><Home /></NavbarWrapper>} />
-            <Route path='/mylog' element={<NavbarWrapper><CheckIn /></NavbarWrapper>} />
+            <Route path='/mylog' element={<NavbarWrapper><CheckIn className='w-[400px]' /></NavbarWrapper>} />
           </Routes>
         </main>
       </div>

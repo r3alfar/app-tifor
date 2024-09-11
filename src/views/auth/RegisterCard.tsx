@@ -1,12 +1,8 @@
-import React, { ComponentProps } from 'react'
+import { ComponentProps } from 'react'
 import { cn } from "@/lib/utils"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
 } from "@/components/ui/card"
 import './Auth.css'
 import { useState } from "react"
@@ -17,7 +13,6 @@ import { Button } from "@/components/ui/button"
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -64,8 +59,8 @@ async function onSubmit(values: z.infer<typeof formSchema>) {
 }
 
 function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
-  const [error, setError] = useState('')
-  let userCreds;
+  const [error] = useState('')
+  // let userCreds;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {

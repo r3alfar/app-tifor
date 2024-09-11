@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../auth/AuthContext'
@@ -31,9 +31,13 @@ function Home() {
       console.log("Logged out successfully")
       navigate('/')
     }).catch((error) => {
-      console.log("Error logging out")
+      console.log("Error logging out", error)
     })
 
+  }
+
+  async function navigateMyLog() {
+    navigate('/mylog')
   }
 
   return (
@@ -48,6 +52,14 @@ function Home() {
           <h1
             className="font-extrabold "
           >User</h1>
+
+          <Button
+            className="mt-6"
+            type="submit"
+            variant="secondary"
+            onClick={() => navigateMyLog()}
+          >Activity Log</Button>
+
           <Button
             className="mt-6"
             type="submit"

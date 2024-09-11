@@ -3,7 +3,7 @@ import { useState } from "react"
 import RegisterCard from "./RegisterCard"
 import LoginCard from "./LoginCard"
 import { initializeApp } from 'firebase/app'
-const app = initializeApp(JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG))
+initializeApp(JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG))
 
 
 function Auth() {

@@ -1,42 +1,40 @@
-import React, { ComponentProps, useContext, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { AuthContext } from '../auth/AuthContext'
+import { ComponentProps } from 'react'
+// import { useNavigate } from 'react-router-dom'
 import './CheckIn.css'
 // ui
-import { useState } from "react"
-import { z } from "zod"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { Button } from "@/components/ui/button"
 import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form"
+  FileInput,
+  FileUploader,
+  FileUploaderContent,
+  FileUploaderItem,
+} from "@/components/extension/file-upload"
+import { Button } from "@/components/ui/button"
 import {
   Card,
   CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
+  CardFooter
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { Textarea } from '@/components/ui/textarea'
 import {
-  FileUploader,
-  FileInput,
-  FileUploaderContent,
-  FileUploaderItem,
-} from "@/components/extension/file-upload";
-import { DropzoneOptions } from "react-dropzone";
-import { Paperclip } from "lucide-react";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Textarea } from '@/components/ui/textarea'
+import { cn } from "@/lib/utils"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Paperclip } from "lucide-react"
+import { useState } from "react"
+import { DropzoneOptions } from "react-dropzone"
+import { useForm } from "react-hook-form"
+import { z } from "zod"
+import { useNavigate } from 'react-router-dom'
+import { useToast } from '@/hooks/use-toast'
+import { ToastAction } from '@/components/ui/toast'
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -79,15 +77,14 @@ const FileSvgDraw = () => {
   );
 };
 
-async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
-  console.log(values);
-  console.log(files);
-}
+
 
 export default function CheckIn({ className, ...props }: CardProps) {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   // const { user } = useContext(AuthContext);
-  const [error, setError] = useState('');
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const [error] = useState('');
 
   //setup files to uplaod
   const [files, setFiles] = useState<File[] | null>([]);
@@ -111,6 +108,43 @@ export default function CheckIn({ className, ...props }: CardProps) {
       category: "",
     },
   })
+
+  async function backToHome() {
+    navigate('/home')
+  }
+
+  async function resetForm() {
+    form.reset();
+    setFiles([]);
+    form.setValue('category', "product_sharing")
+  }
+
+  async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
+    console.log(values);
+    console.log(files);
+    let fileArr: string[] = [];
+    files?.forEach(file => {
+      // console.log(file.name);
+      fileArr.push(file.name);
+    })
+    const fileObj = {
+      files: fileArr
+    }
+    Object.assign(values, fileObj);
+
+
+    toast({
+      title: "Uh oh! Something went wrong.",
+      // description: "There was a problem with your request.",
+      description: (
+        <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+          {JSON.stringify(values, null, 2)}
+        </pre>
+      ),
+      action: <ToastAction altText="Try again" onClick={() => resetForm()}>Reset Form</ToastAction>,
+
+    })
+  }
 
 
   return (
@@ -286,6 +320,13 @@ export default function CheckIn({ className, ...props }: CardProps) {
             </form>
           </Form>
         </CardContent>
+        <CardFooter>
+          <Button
+            className="mt-6"
+            type="submit"
+            onClick={() => backToHome()}
+          >Back To Home</Button>
+        </CardFooter>
       </Card>
     </main>
 
