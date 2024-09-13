@@ -5,6 +5,10 @@ import MyNavbar from './components/custom/myNavbar'
 import Footer from './components/custom/footer/Footer'
 import CheckIn from './views/myLog/CheckIn'
 import ScheduleRecap from './views/scheduleRecap/ScheduleRecap'
+import React from 'react'
+import TasksPage from './views/scheduleRecap/recap-detail/page'
+
+// const AsyncComponent = React.lazy(() => import('./views/scheduleRecap/recap-detail/page'))
 
 const NavbarWrapper = ({ children }: { children: React.ReactNode }) => (
   <>
@@ -23,6 +27,7 @@ function App() {
             <Route path='/home' element={<NavbarWrapper><Home /></NavbarWrapper>} />
             <Route path='/mylog' element={<NavbarWrapper><CheckIn className='w-[400px]' /></NavbarWrapper>} />
             <Route path='/schedule' element={<NavbarWrapper><ScheduleRecap /></NavbarWrapper>} />
+            <Route path='/tasks' element={<NavbarWrapper><TasksPage /></NavbarWrapper>} />
           </Routes>
         </main>
       </div>

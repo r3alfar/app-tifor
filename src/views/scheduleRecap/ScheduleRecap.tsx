@@ -1,6 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
-import { CalendarIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react'
+import { CalendarIcon } from 'lucide-react'
 import { useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
@@ -64,7 +64,6 @@ const months = [
 const colors = ['bg-blue-100', 'bg-pink-100', 'bg-green-100']
 
 export default function Component() {
-  const [open, setOpen] = useState(false);
   const [openItem, setOpenItem] = useState<string[]>([]);
   const [tabValue, setTabValue] = useState<string>('month');
 
@@ -126,7 +125,7 @@ export default function Component() {
         value={openItem}
         onValueChange={setOpenItem}
       >
-        {months.map((month, index) => (
+        {months.map((month) => (
           <AccordionItem value={month.name} key={month.name} className="border rounded-lg overflow-hidden">
             <AccordionTrigger className="px-4 py-2 bg-white hover:no-underline hover:bg-gray-50">
               <div className="flex items-center justify-between w-full">

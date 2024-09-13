@@ -40,6 +40,10 @@ function Home() {
     navigate('/mylog')
   }
 
+  async function navigateTasks() {
+    navigate('/tasks')
+  }
+
   return (
     <main className='flex items-center justify-center min-h-[calc(100vh-64px)]'>
       <div className='text-center'>
@@ -60,6 +64,12 @@ function Home() {
             onClick={() => navigateMyLog()}
           >Activity Log</Button>
 
+          <Button
+            className="mt-6"
+            type="submit"
+            variant="secondary"
+            onClick={() => navigateTasks()}
+          >Tasks List</Button>
           <Button
             className="mt-6"
             type="submit"

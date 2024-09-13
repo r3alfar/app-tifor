@@ -122,7 +122,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
   async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
     console.log(values);
     console.log(files);
-    let fileArr: string[] = [];
+    const fileArr: string[] = [];
     files?.forEach(file => {
       // console.log(file.name);
       fileArr.push(file.name);
