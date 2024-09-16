@@ -36,6 +36,8 @@ import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 
+import { categories, statuses, priorities } from '../scheduleRecap/recap-detail/data/tasks.data'
+
 type CardProps = ComponentProps<typeof Card>
 
 const formSchema = z
@@ -116,7 +118,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
   async function resetForm() {
     form.reset();
     setFiles([]);
-    form.setValue('category', "product_sharing")
+    // form.setValue('category', "")
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
@@ -195,7 +197,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                   )}
                 />
 
-                {/* EMAIL */}
+                {/* PRIORITY */}
                 <FormField
                   control={form.control}
                   name="priority"
@@ -203,9 +205,38 @@ export default function CheckIn({ className, ...props }: CardProps) {
                     <FormItem className='space-y-0'>
                       <div className='grid grid-cols-4 items-center'>
                         <FormLabel className='col-span-1'>Priority</FormLabel>
-                        <FormControl className='col-span-3'>
+                        {/* <FormControl className='col-span-3'>
                           <Input placeholder="Add Priority" {...field} />
-                        </FormControl>
+                        </FormControl> */}
+
+                        <div className='col-span-3'>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose Priority" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {
+                                priorities.map((priority) => (
+                                  <SelectItem key={priority.value} value={priority.value}>
+                                    <div className="flex w-[100px] items-center">
+                                      {
+                                        priority.icon && (
+                                          <priority.icon
+                                            className='mr-2 h-4 w-4 text-muted-foreground'
+                                          />
+                                        )
+                                      }
+                                      <span>{priority.label}</span>
+                                    </div>
+
+                                  </SelectItem>
+                                ))
+                              }
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <FormMessage />
@@ -213,7 +244,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                   )}
                 />
 
-                {/* PASSWORD */}
+                {/* STATUs */}
                 <FormField
                   control={form.control}
                   name="status"
@@ -221,16 +252,44 @@ export default function CheckIn({ className, ...props }: CardProps) {
                     <FormItem className='space-y-0'>
                       <div className='grid grid-cols-4 items-center'>
                         <FormLabel className='col-span-1'>Status</FormLabel>
-                        <FormControl className='col-span-3'>
+                        {/* <FormControl className='col-span-3'>
                           <Input placeholder="Add status" {...field} />
-                        </FormControl>
+                        </FormControl> */}
+                        <div className='col-span-3'>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose status" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {
+                                statuses.map((status) => (
+                                  <SelectItem key={status.value} value={status.value}>
+                                    <div className="flex w-[100px] items-center">
+                                      {
+                                        status.icon && (
+                                          <status.icon
+                                            className='mr-2 h-4 w-4 text-muted-foreground'
+                                          />
+                                        )
+                                      }
+                                      <span>{status.label}</span>
+                                    </div>
+
+                                  </SelectItem>
+                                ))
+                              }
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-
+                {/* CATEGORY */}
                 <FormField
                   control={form.control}
                   name="category"
@@ -241,18 +300,20 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
                         {/* <Input placeholder="Choose Category" {...field} /> */}
                         <div className='col-span-3'>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger>
                                 <SelectValue placeholder="Choose a category" />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="product_sharing">Product Sharing</SelectItem>
-                              <SelectItem value="meeting_doctor">Meeting Doctor</SelectItem>
-                              <SelectItem value="drugstore_visit">Drugstore Visit</SelectItem>
-                              <SelectItem value="event_exhibition">Event &amp; Exhibition</SelectItem>
-                              <SelectItem value="training">Training</SelectItem>
+                              {
+                                categories.map((category) => (
+                                  <SelectItem key={category.value} value={category.value}>
+                                    {category.label}
+                                  </SelectItem>
+                                ))
+                              }
                             </SelectContent>
                           </Select>
                         </div>
@@ -265,6 +326,27 @@ export default function CheckIn({ className, ...props }: CardProps) {
                   )}
                 />
 
+                {/* DESCRIPTION */}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className='space-y-0'>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder='Add more detailed description'
+                          className='resize-none'
+                          {...field}
+                        />
+
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* ATTACHMENT */}
                 <div className='flex flex-col'>
                   <p>Attachment</p>
                   <FileUploader
@@ -292,25 +374,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                 </div>
 
 
-                {/* CONFIRM PASSWORD */}
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem className='space-y-0'>
-                      <FormLabel>Description</FormLabel>
-                      <FormControl>
-                        <Textarea
-                          placeholder='Add more detailed description'
-                          className='resize-none'
-                          {...field}
-                        />
 
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
 
               <div className='mt-4 flex flex-col justify-center '>
