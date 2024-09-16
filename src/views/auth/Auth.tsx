@@ -2,9 +2,11 @@ import './Auth.css'
 import { useState } from "react"
 import RegisterCard from "./RegisterCard"
 import LoginCard from "./LoginCard"
-import { initializeApp } from 'firebase/app'
-initializeApp(JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG))
+// import { initializeApp } from 'firebase/app'
+// initializeApp(JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG))
+import { firebaseAppInitialize } from '@/repository/firebase/config'
 
+firebaseAppInitialize();
 
 function Auth() {
   const [isRegister, setIsRegister] = useState(false)

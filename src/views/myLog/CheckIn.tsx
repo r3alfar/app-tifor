@@ -37,6 +37,9 @@ import { useToast } from '@/hooks/use-toast'
 import { ToastAction } from '@/components/ui/toast'
 
 import { categories, statuses, priorities } from '../scheduleRecap/recap-detail/data/tasks.data'
+import { db, storage } from '@/repository/firebase/config'
+import { doc, setDoc } from 'firebase/firestore'
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -132,11 +135,42 @@ export default function CheckIn({ className, ...props }: CardProps) {
     const fileObj = {
       files: fileArr
     }
-    Object.assign(values, fileObj);
+    console.log(files);
+    // Object.assign(values, fileObj);
 
+    // uplaod activity log tanpa image
+    try {
+      // const docRef = await addDoc(collection(db, "activity"), values);
+      const myId = "123!!"
+      const docRef = doc(db, 'activity', `${myId}-${Date.now()}`);
+      await setDoc(docRef, values);
+      console.log("Document written with ID: ", docRef.id);
+    } catch (error) {
+      console.log("error adding document", error);
+    }
+
+    // test uplaod image
+    try {
+      const storageRef = ref(storage, `attachments/${Date.now()}`);
+      if (files?.length) {
+        uploadBytes(storageRef, files[0]).then(async (snapshot) => {
+          const url = await getDownloadURL(snapshot.ref);
+          console.log("url: ", url)
+          console.log('Uploaded a blob or file! with url: ', snapshot);
+        });
+        // files.forEach(file => {
+        //   const storageRef = ref(storage, `attachments/${file.name}`);
+        //   uploadBytes(storageRef, file).then((snapshot) => {
+        //     console.log('Uploaded a blob or file!');
+        //   });
+        // });
+      }
+    } catch (error) {
+      console.log("error adding image", error);
+    }
 
     toast({
-      title: "Uh oh! Something went wrong.",
+      title: "Data Value",
       // description: "There was a problem with your request.",
       description: (
         <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
