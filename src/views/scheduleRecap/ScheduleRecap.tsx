@@ -81,6 +81,9 @@ export default function Component() {
   const handleCardDetail = (item: any) => {
     console.log(item)
   };
+
+
+
   return (
     <div className="bg-yellow-200 p-4 rounded-lg">
       <div className="flex justify-between mb-4">
