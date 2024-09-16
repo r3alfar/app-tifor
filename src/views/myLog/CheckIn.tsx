@@ -38,8 +38,25 @@ import { ToastAction } from '@/components/ui/toast'
 
 import { categories, statuses, priorities } from '../scheduleRecap/recap-detail/data/tasks.data'
 import { db, storage } from '@/repository/firebase/config'
+// import { db } from '@/repository/firebase/config'
 import { doc, setDoc } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
+import { useAuthContext } from '../auth/AuthContext'
+
+interface ActivityLogModel {
+  id: string;
+  location: string;
+  schedule: string;
+  priority: string;
+  status: string;
+  description: string;
+  category: string;
+  createdAt: string;
+  updatedAt: string;
+  userId: string;
+  imageUrls: string[];
+  timestamp: string;
+}
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -82,6 +99,13 @@ const FileSvgDraw = () => {
   );
 };
 
+// Helper function to get week number (ISO week)
+// function getWeekNumber(d: Date) {
+//   const oneJan = new Date(d.getFullYear(), 0, 1);
+//   const numberOfDays = Math.floor((d - oneJan) / (24 * 60 * 60 * 1000));
+//   return Math.ceil((d.getDay() + 1 + numberOfDays) / 7);
+// }
+
 
 
 export default function CheckIn({ className, ...props }: CardProps) {
@@ -90,6 +114,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [error] = useState('');
+  const user = useAuthContext();
 
   //setup files to uplaod
   const [files, setFiles] = useState<File[] | null>([]);
@@ -125,49 +150,86 @@ export default function CheckIn({ className, ...props }: CardProps) {
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
+    console.log("currentUser: ", user)
     console.log(values);
     console.log(files);
-    const fileArr: string[] = [];
-    files?.forEach(file => {
-      // console.log(file.name);
-      fileArr.push(file.name);
-    })
-    const fileObj = {
-      files: fileArr
-    }
-    console.log(files);
-    // Object.assign(values, fileObj);
+    let activityLogModel = {} as ActivityLogModel;
+    Object.assign(activityLogModel, values)
+    console.log("assigning values to interface: ", activityLogModel)
 
-    // uplaod activity log tanpa image
-    try {
-      // const docRef = await addDoc(collection(db, "activity"), values);
-      const myId = "123!!"
-      const docRef = doc(db, 'activity', `${myId}-${Date.now()}`);
-      await setDoc(docRef, values);
-      console.log("Document written with ID: ", docRef.id);
-    } catch (error) {
-      console.log("error adding document", error);
-    }
 
     // test uplaod image
+    let uploadedImageUrls: string[] = [];
     try {
-      const storageRef = ref(storage, `attachments/${Date.now()}`);
+      // const storageRef = ref(storage, `attachments/${Date.now()}`);
       if (files?.length) {
-        uploadBytes(storageRef, files[0]).then(async (snapshot) => {
-          const url = await getDownloadURL(snapshot.ref);
-          console.log("url: ", url)
-          console.log('Uploaded a blob or file! with url: ', snapshot);
-        });
-        // files.forEach(file => {
-        //   const storageRef = ref(storage, `attachments/${file.name}`);
-        //   uploadBytes(storageRef, file).then((snapshot) => {
-        //     console.log('Uploaded a blob or file!');
-        //   });
+        // uploadBytes(storageRef, files[0]).then(async (snapshot) => {
+        //   const url = await getDownloadURL(snapshot.ref);
+        //   console.log("url: ", url)
+        //   console.log('Uploaded a blob or file! with url: ', snapshot);
         // });
+
+        for (const file of files) {
+          const storageRef = ref(storage, `attachments/${Date.now()}`);
+          await uploadBytes(storageRef, file).then(async (snapshot) => {
+            await getDownloadURL(snapshot.ref).then(url => {
+              uploadedImageUrls.push(url);
+            });
+
+            console.log('Uploaded a blob or file!');
+          });
+        }
+
+
       }
     } catch (error) {
       console.log("error adding image", error);
     }
+
+    console.log("uploadedImageUrls: ", uploadedImageUrls)
+    if (uploadedImageUrls.length) {
+      console.log("imageUrl is present")
+      activityLogModel.imageUrls = uploadedImageUrls;
+    } else {
+      console.log("imageUrl is somehow not present")
+      activityLogModel.imageUrls = uploadedImageUrls;
+    }
+
+    // uplaod activity with image
+    try {
+      // const docRef = await addDoc(collection(db, "activity"), values);
+      const myId = `123!!-${Date.now()}`
+      const docRef = doc(db, 'activity', myId);
+      activityLogModel.timestamp = Date.now().toString()
+      const currentYear = new Date().getFullYear();
+      const currentMonth = new Date().getMonth();
+      // const date = new Date(parseInt(activityLogModel.timestamp))
+
+      //write to main activity
+      if (user?.user?.uid) {
+        console.log("user?.user?.uid: ", user?.user?.uid);
+        activityLogModel.userId = user?.user?.uid;
+      }
+      await setDoc(docRef, activityLogModel);
+
+      // write to activities by month
+      const monthRef = doc(db, `activities_by_month`, `${currentYear}-${currentMonth}`)
+      await setDoc(monthRef, {
+        [docRef.id]: {
+          ...activityLogModel,
+        }
+      }, {
+        merge: true,
+      })
+
+      // write to activities by week
+      // const currentWeek = getWeekNumber(date);
+      // const weekRef = doc(db, `activities_by_week`, `${currentYear}-${currentMonth}-${currentWeek}`)
+    } catch (error) {
+      console.log("error adding document", error);
+    }
+
+
 
     toast({
       title: "Data Value",
