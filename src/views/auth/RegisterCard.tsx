@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Checkbox } from '@/components/ui/checkbox'
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
+import { useToast } from '@/hooks/use-toast'
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -41,25 +42,11 @@ const formSchema = z
     path: ["password_confirm"],
   });
 
-async function onSubmit(values: z.infer<typeof formSchema>) {
-  console.log(values);
-  const auth = getAuth();
-  createUserWithEmailAndPassword(auth, values.email, values.password)
-    .then((userCredential) => {
-      const userCreds = userCredential.user;
-      console.log(userCreds);
-      console.log("Created user: ", userCredential);
-    })
-    .catch((error) => {
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      console.log(`Error ${errorCode} Create user : ${errorMessage}`);
 
-    });
-}
 
 function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
   const [error] = useState('')
+  const { toast } = useToast();
   // let userCreds;
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,6 +58,36 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
       password_confirm: "",
     },
   })
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
+    const auth = getAuth();
+    createUserWithEmailAndPassword(auth, values.email, values.password)
+      .then((userCredential) => {
+        const userCreds = userCredential.user;
+        console.log(userCreds);
+        console.log("Created user: ", userCredential);
+        onSwitchToLogin();
+        toast({
+          title: "Register Success",
+          description: (
+            <div className='flex flex-col'>
+              <span>Succesfully Register</span>
+              <span>Please Login to Continue</span>
+            </div>
+          ),
+
+        });
+
+
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(`Error ${errorCode} Create user : ${errorMessage}`);
+
+      });
+  }
 
   return (
     <Card className={cn(className)} {...props}>
