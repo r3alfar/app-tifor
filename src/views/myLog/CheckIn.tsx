@@ -27,7 +27,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea'
 import { cn } from "@/lib/utils"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Paperclip } from "lucide-react"
+import { CalendarIcon, Paperclip } from "lucide-react"
 import { useState } from "react"
 import { DropzoneOptions } from "react-dropzone"
 import { useForm } from "react-hook-form"
@@ -42,6 +42,10 @@ import { db, storage } from '@/repository/firebase/config'
 import { doc, setDoc } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { useAuthContext } from '../auth/AuthContext'
+import { Popover, PopoverTrigger } from '@/components/ui/popover'
+import { format } from 'date-fns'
+import { PopoverContent } from '@radix-ui/react-popover'
+import { Calendar } from '@/components/ui/calendar'
 
 interface ActivityLogModel {
   id: string;
@@ -63,11 +67,12 @@ type CardProps = ComponentProps<typeof Card>
 const formSchema = z
   .object({
     location: z.string().min(3),
-    schedule: z.string().min(3),
+    // schedule: z.string().min(3),
     priority: z.string().min(3),
     status: z.string().min(3),
     description: z.string().min(3),
     category: z.string().min(3),
+    schedule: z.date(),
   });
 
 const FileSvgDraw = () => {
@@ -131,11 +136,12 @@ export default function CheckIn({ className, ...props }: CardProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       location: "",
-      schedule: "",
+      // schedule: "",
       priority: "",
       status: "",
       description: "",
       category: "",
+      schedule: undefined,
     },
   })
 
@@ -152,9 +158,12 @@ export default function CheckIn({ className, ...props }: CardProps) {
   async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
     console.log("currentUser: ", user)
     console.log(values);
+    console.log("stringify obj", JSON.stringify(values));
     console.log(files);
     let activityLogModel = {} as ActivityLogModel;
-    Object.assign(activityLogModel, values)
+    const v = values;
+    v.schedule.toString();
+    Object.assign(activityLogModel, v)
     console.log("assigning values to interface: ", activityLogModel)
 
 
@@ -198,12 +207,16 @@ export default function CheckIn({ className, ...props }: CardProps) {
     // uplaod activity with image
     try {
       // const docRef = await addDoc(collection(db, "activity"), values);
-      const myId = `123!!-${Date.now()}`
-      const docRef = doc(db, 'activity', myId);
+      // const myId = `123!!-${Date.now()}`
+      const docIdByUid = `${user?.user?.uid}-${Date.now()}`
+      const docRef = doc(db, 'activity', docIdByUid);
       activityLogModel.timestamp = Date.now().toString()
-      const currentYear = new Date().getFullYear();
-      const currentMonth = new Date().getMonth();
+      const currentYear = new Date(activityLogModel.schedule).getFullYear();
+      const currentMonth = new Date(activityLogModel.schedule).getMonth() + 1;
       // const date = new Date(parseInt(activityLogModel.timestamp))
+
+      console.log("currentYear: ", currentYear)
+      console.log("currentMonth: ", currentMonth)
 
       //write to main activity
       if (user?.user?.uid) {
@@ -271,27 +284,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                   )}
                 />
 
-                {/* USERNAME */}
-                <FormField
-                  control={form.control}
-                  name="schedule"
-                  render={({ field }) => (
-                    <FormItem className='space-y-0'>
-                      <div className='grid grid-cols-4 items-center'>
-                        <FormLabel
-                          className='col-span-1'
-                        >Schedule</FormLabel>
-                        <FormControl
-                          className='col-span-3'
-                        >
-                          <Input placeholder="Add Schedule" {...field} />
-                        </FormControl>
-                      </div>
 
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
                 {/* PRIORITY */}
                 <FormField
@@ -415,6 +408,63 @@ export default function CheckIn({ className, ...props }: CardProps) {
                         </div>
 
 
+                      </div>
+
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* SCHEDULE */}
+                <FormField
+                  control={form.control}
+                  name="schedule"
+                  render={({ field }) => (
+                    <FormItem className='space-y-0'>
+                      <div className='grid grid-cols-4 items-center'>
+                        <FormLabel
+                          className='col-span-1'
+                        >Schedule</FormLabel>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <FormControl>
+                              <Button
+                                variant={"outline"}
+                                className={cn(
+                                  "w-[265px] pl-3 text-left font-normal",
+                                  !field.value && "text-muted-foreground"
+                                )}
+                              >
+                                {
+                                  field.value ? (
+                                    format(field.value, "dd MMMM yyyy")
+                                  ) :
+                                    (
+                                      <span>Pick a date</span>
+                                    )
+                                }
+                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                              </Button>
+                            </FormControl>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-auto p-0 z-40" align='start' avoidCollisions={true}>
+                            <Calendar
+                              className='bg-slate-50'
+                              mode='single'
+                              selected={field.value}
+                              onSelect={field.onChange}
+                              disabled={(date) =>
+                                date < new Date()
+
+                              }
+                            />
+                          </PopoverContent>
+                        </Popover>
+                        {/* <FormControl
+                          className='col-span-3'
+                        >
+                          <Input placeholder="Add Schedule" {...field} />
+                        </FormControl> */}
                       </div>
 
                       <FormMessage />
