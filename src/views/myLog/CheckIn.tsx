@@ -46,6 +46,7 @@ import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { format } from 'date-fns'
 import { PopoverContent } from '@radix-ui/react-popover'
 import { Calendar } from '@/components/ui/calendar'
+import { v4 as uuidv4 } from 'uuid'
 
 interface ActivityLogModel {
   id: string;
@@ -208,9 +209,16 @@ export default function CheckIn({ className, ...props }: CardProps) {
     try {
       // const docRef = await addDoc(collection(db, "activity"), values);
       // const myId = `123!!-${Date.now()}`
-      const docIdByUid = `${user?.user?.uid}-${Date.now()}`
-      const docRef = doc(db, 'activity', docIdByUid);
-      activityLogModel.timestamp = Date.now().toString()
+
+      // const docIdByUid = `${user?.user?.uid}-${Date.now()}
+
+
+      // activityLogModel.userId = userId
+
+
+
+
+
       const currentYear = new Date(activityLogModel.schedule).getFullYear();
       const currentMonth = new Date(activityLogModel.schedule).getMonth() + 1;
       // const date = new Date(parseInt(activityLogModel.timestamp))
@@ -222,18 +230,32 @@ export default function CheckIn({ className, ...props }: CardProps) {
       if (user?.user?.uid) {
         console.log("user?.user?.uid: ", user?.user?.uid);
         activityLogModel.userId = user?.user?.uid;
+        activityLogModel.timestamp = Date.now().toString()
       }
-      await setDoc(docRef, activityLogModel);
+      let activityId = uuidv4();
+      const docRef = doc(db, `users-activity/${activityLogModel.userId}/activities`, activityId);
+
+      console.log("activityId: ", activityId)
+
+      await setDoc(docRef, activityLogModel).then(() => {
+        console.log("success")
+        activityId = "";
+        form.reset();
+      })
+
+      // await updateDoc(docRef, {
+      //   [`${activityId}`]: activityLogModel
+      // });
 
       // write to activities by month
-      const monthRef = doc(db, `activities_by_month`, `${currentYear}-${currentMonth}`)
-      await setDoc(monthRef, {
-        [docRef.id]: {
-          ...activityLogModel,
-        }
-      }, {
-        merge: true,
-      })
+      // const monthRef = doc(db, `activities_by_month`, `${currentYear}-${currentMonth}`)
+      // await setDoc(monthRef, {
+      //   [docRef.id]: {
+      //     ...activityLogModel,
+      //   }
+      // }, {
+      //   merge: true,
+      // })
 
       // write to activities by week
       // const currentWeek = getWeekNumber(date);
