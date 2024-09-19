@@ -47,6 +47,7 @@ import { format } from 'date-fns'
 import { PopoverContent } from '@radix-ui/react-popover'
 import { Calendar } from '@/components/ui/calendar'
 import { v4 as uuidv4 } from 'uuid'
+import { Label } from '@/components/ui/label'
 
 interface ActivityLogModel {
   id: string;
@@ -281,10 +282,10 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
 
   return (
-    <main className='flex items-center justify-center min-h-[calc(100vh-64px)]'>
+    <main className='flex items-center justify-center min-h-[calc(80vh-64px)]'>
       <Card className={cn(className)} {...props}>
         <CardContent>
-          <p>Acitivity - Check In</p>
+          <p>Activity - Check In</p>
           <Form {...form}>
             {error && <p>{error}</p>}
             <form onSubmit={form.handleSubmit((values) => onSubmit(values, files))}>
@@ -297,7 +298,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                       <div className='grid grid-cols-4 items-center'>
                         <FormLabel className='col-span-1'>Location</FormLabel>
                         <FormControl className='col-span-3'>
-                          <Input placeholder="Add Location" {...field} />
+                          <Input className='bg-white' placeholder="Add Location" {...field} />
                         </FormControl>
                       </div>
 
@@ -323,7 +324,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                         <div className='col-span-3'>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='bg-white'>
                                 <SelectValue placeholder="Choose Priority" />
                               </SelectTrigger>
                             </FormControl>
@@ -369,7 +370,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                         <div className='col-span-3'>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='bg-white'>
                                 <SelectValue placeholder="Choose status" />
                               </SelectTrigger>
                             </FormControl>
@@ -413,7 +414,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                         <div className='col-span-3'>
                           <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
-                              <SelectTrigger>
+                              <SelectTrigger className='bg-white'>
                                 <SelectValue placeholder="Choose a category" />
                               </SelectTrigger>
                             </FormControl>
@@ -448,12 +449,12 @@ export default function CheckIn({ className, ...props }: CardProps) {
                           className='col-span-1'
                         >Schedule</FormLabel>
                         <Popover>
-                          <PopoverTrigger asChild>
+                          <PopoverTrigger asChild className='bg-white'>
                             <FormControl>
                               <Button
                                 variant={"outline"}
                                 className={cn(
-                                  "w-[265px] pl-3 text-left font-normal",
+                                  "w-[265px] pl-3 text-left font-normal border-white",
                                   !field.value && "text-muted-foreground"
                                 )}
                               >
@@ -504,7 +505,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
                       <FormControl>
                         <Textarea
                           placeholder='Add more detailed description'
-                          className='resize-none'
+                          className='resize-none bg-white'
                           {...field}
                         />
 
@@ -516,12 +517,13 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
                 {/* ATTACHMENT */}
                 <div className='flex flex-col'>
-                  <p>Attachment</p>
+                  {/* <p>Attachment</p> */}
+                  <Label>Attachment</Label>
                   <FileUploader
                     value={files}
                     onValueChange={setFiles}
                     dropzoneOptions={dropzone}
-                    className='relative bg-background rounded-lg p-2'
+                    className='relative bg-white rounded-lg p-2'
                   >
                     <FileInput className="outline-dashed outline-1 outline-white">
                       <div className="flex items-center justify-center flex-col pt-3 pb-4 w-full ">

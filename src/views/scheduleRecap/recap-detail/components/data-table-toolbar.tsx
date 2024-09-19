@@ -11,6 +11,7 @@ import { DataTableViewOptions } from "./data-table-view-options"
 import { DataTableFacetedFilter } from "./data-table-faceted-filter"
 
 import { priorities, statuses, categories } from "../data/tasks.data"
+import DataTableExportAction from "./data-table-export-action"
 
 interface DataTableToolbarProps<TData> {
   table: Table<TData>
@@ -64,7 +65,11 @@ export function DataTableToolbar<TData>({
           </Button>
         )}
       </div>
-      <DataTableViewOptions table={table} />
+      <div className="flex flex-row gap-x-2">
+        <DataTableExportAction table={table} />
+        <DataTableViewOptions table={table} />
+      </div>
+
     </div>
   )
 }

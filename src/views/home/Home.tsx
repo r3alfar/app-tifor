@@ -45,7 +45,7 @@ function Home() {
   }
 
   return (
-    <main className='flex items-center justify-center min-h-[calc(100vh-64px)]'>
+    <main className='flex items-center justify-center min-h-[calc(80vh-64px)]'>
       <div className='text-center'>
         <div
           className="flex flex-col "

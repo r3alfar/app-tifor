@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { db } from '@/repository/firebase/config'
 import { Timestamp, collection, getDocs, query, where } from "firebase/firestore"
 import { useAuthContext } from "../auth/AuthContext"
+import { useNavigate } from "react-router-dom"
 
 
 
@@ -19,20 +20,7 @@ const categoryMapping: {
   "event_exhibition": "Event & Exhibition",
 }
 
-const monthsStartEndDate: monthAct[] = [
-  { name: 'January', start: '2024-01-01', end: '2024-01-31', events: 0, items: [] },
-  { name: 'February', start: '2024-02-01', end: '2024-02-29', events: 0, items: [] }, // Handle leap year if needed
-  { name: 'March', start: '2024-03-01', end: '2024-03-31', events: 0, items: [] },
-  { name: 'April', start: '2024-04-01', end: '2024-04-30', events: 0, items: [] },
-  { name: 'May', start: '2024-05-01', end: '2024-05-31', events: 0, items: [] },
-  { name: 'June', start: '2024-06-01', end: '2024-06-30', events: 0, items: [] },
-  { name: 'July', start: '2024-07-01', end: '2024-07-31', events: 0, items: [] },
-  { name: 'August', start: '2024-08-01', end: '2024-08-31', events: 0, items: [] },
-  { name: 'September', start: '2024-09-01', end: '2024-09-30', events: 0, items: [] },
-  { name: 'October', start: '2024-10-01', end: '2024-10-31', events: 0, items: [] },
-  { name: 'November', start: '2024-11-01', end: '2024-11-30', events: 0, items: [] },
-  { name: 'December', start: '2024-12-01', end: '2024-12-31', events: 0, items: [] },
-];
+
 
 interface monthAct {
   name: string;
@@ -50,6 +38,7 @@ export default function Component() {
   const [openItem, setOpenItem] = useState<string[]>([]);
   const [tabValue, setTabValue] = useState<string>('month');
   const user = useAuthContext();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | string | null>(null);
   const [filteredMonthsData, setFilteredMonthsData] = useState<monthAct[]>([]);
@@ -60,6 +49,21 @@ export default function Component() {
   useEffect(() => {
 
     const fetchDummyData = async () => {
+      const monthsStartEndDate: monthAct[] = [
+        { name: 'January', start: '2024-01-01', end: '2024-01-31', events: 0, items: [] },
+        { name: 'February', start: '2024-02-01', end: '2024-02-29', events: 0, items: [] }, // Handle leap year if needed
+        { name: 'March', start: '2024-03-01', end: '2024-03-31', events: 0, items: [] },
+        { name: 'April', start: '2024-04-01', end: '2024-04-30', events: 0, items: [] },
+        { name: 'May', start: '2024-05-01', end: '2024-05-31', events: 0, items: [] },
+        { name: 'June', start: '2024-06-01', end: '2024-06-30', events: 0, items: [] },
+        { name: 'July', start: '2024-07-01', end: '2024-07-31', events: 0, items: [] },
+        { name: 'August', start: '2024-08-01', end: '2024-08-31', events: 0, items: [] },
+        { name: 'September', start: '2024-09-01', end: '2024-09-30', events: 0, items: [] },
+        { name: 'October', start: '2024-10-01', end: '2024-10-31', events: 0, items: [] },
+        { name: 'November', start: '2024-11-01', end: '2024-11-30', events: 0, items: [] },
+        { name: 'December', start: '2024-12-01', end: '2024-12-31', events: 0, items: [] },
+      ];
+      setFilteredMonthsData([])
       console.log("begin fetch")
       const startMonth = Timestamp.fromDate(new Date('2024-09-01'))
       const endMonth = Timestamp.fromDate(new Date('2024-09-30'))
@@ -139,9 +143,13 @@ export default function Component() {
     tabValue != 'week' ? setTabValue('week') : setTabValue('month');
   };
 
-  const handleCardDetail = (item: any) => {
-    console.log(item)
-  };
+  // const handleCardDetail = (item: any) => {
+  //   console.log(item)
+  // };
+
+  async function navigateTasks() {
+    navigate('/tasks')
+  }
 
 
 
@@ -180,7 +188,7 @@ export default function Component() {
               </TabsList>
             </Tabs>
           </div>
-          <Button variant="outline" size="sm">Filter</Button>
+          <Button variant="outline" size="default" onClick={() => navigateTasks()}>All Tasks</Button>
         </div>
       </div>
       <Accordion
@@ -210,7 +218,7 @@ export default function Component() {
                 <AccordionContent>
                   <div className="p-4 space-y-4 bg-slate-800">
                     {month.items.map((item, itemIndex) => (
-                      <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => handleCardDetail(item)}>
+                      <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => navigateTasks()}>
                         <div className="flex justify-between items-center">
                           <h3 className="text-3xl font-bold">{categoryMapping[item.category]}</h3>
                           <Button size="sm" variant="outline" className="bg-white">

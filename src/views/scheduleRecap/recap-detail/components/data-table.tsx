@@ -105,7 +105,7 @@ export function DataTable<TData, TValue>({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                   onClick={() => openModal()}
-                  className="hover:bg-destructive hover:cursor-pointer "
+                  className="hover:bg-[#D7DAFD] hover:cursor-pointer "
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

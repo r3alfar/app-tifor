@@ -1,5 +1,5 @@
-import { AiFillHome, AiOutlineUser, AiOutlineHome } from 'react-icons/ai';
-import { TbNotebook, TbNotebookOff, TbCalendarUser, TbCalendarFilled } from "react-icons/tb";
+import { AiOutlineSchedule, AiFillSchedule, AiFillHome, AiOutlineUser, AiOutlineHome } from 'react-icons/ai';
+import { RiBook2Line, RiBook2Fill } from "react-icons/ri";
 import './Footer.css';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
@@ -51,19 +51,19 @@ function Footer() {
       <div className="footer-item" onClick={handleMyLogClick}>
         {
           isMyLog ?
-            <TbNotebook size={24} />
+            <RiBook2Fill size={24} />
             :
-            <TbNotebookOff size={24} />
+            <RiBook2Line size={24} />
         }
-        <span>My Logs</span>
+        <span>Add Logs</span>
       </div>
 
       <div className="footer-item" onClick={handleScheduleClick}>
         {
           isSchedule ?
-            <TbCalendarFilled size={24} />
+            <AiFillSchedule size={24} />
             :
-            <TbCalendarUser size={24} />
+            <AiOutlineSchedule size={24} />
         }
         {/* <TbCalendarUser size={24} /> */}
         <span>Schedule</span>
