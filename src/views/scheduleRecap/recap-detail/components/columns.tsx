@@ -39,15 +39,15 @@ export const columns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   // ID
-  {
-    accessorKey: "id",
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Task" />
-    ),
-    cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   accessorKey: "id",
+  //   header: ({ column }) => (
+  //     <DataTableColumnHeader column={column} title="Task" />
+  //   ),
+  //   cell: ({ row }) => <div className="w-[80px]">{row.getValue("id")}</div>,
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   // Category
   {
     accessorKey: "categories",
@@ -173,9 +173,10 @@ export const columns: ColumnDef<Task>[] = [
       <DataTableColumnHeader column={column} title="Schedule" />
     ),
     cell: ({ row }) => {
-      const schedule: String = row.getValue("schedule")
-
-      let dateFormat = new Date(schedule.toString()).toLocaleDateString(undefined, {
+      const schedule: string = row.getValue("schedule")
+      const timeInMillis = parseInt(schedule) * 1000;
+      console.log("schedule", schedule)
+      let dateFormat = new Date(timeInMillis).toLocaleDateString('id-ID', {
         day: "numeric",
         month: "short",
         year: "numeric"
