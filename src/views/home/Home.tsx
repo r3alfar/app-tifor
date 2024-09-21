@@ -1,13 +1,25 @@
-import { useContext, useEffect } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { Button } from "@/components/ui/button"
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../auth/AuthContext'
 import { getAuth, signOut } from 'firebase/auth'
 import './Home.css'
+import { doc, getDoc } from 'firebase/firestore'
+import { db } from '@/repository/firebase/config'
+
+interface UserDetail {
+  fullname: string;
+  employee_id: string;
+  email: string;
+  createdAt: Number;
+}
+
 
 function Home() {
   const navigate = useNavigate()
   const { user } = useContext(AuthContext);
+  const [userDetail, setUserDetail] = useState<UserDetail | null>(null)
+  let accDetail: any = {}
 
 
 
@@ -15,6 +27,16 @@ function Home() {
     if (!user) {
       console.log("User not logged in");
       navigate('/', { replace: true })
+    } else {
+      getAccountDetail(user.uid)
+        .then(data => {
+          accDetail = data
+          setUserDetail(accDetail)
+          console.log("Account Detail", accDetail)
+        })
+        .catch(error => {
+          console.log("Error getting account detail", error)
+        })
     }
   }, [user, navigate])
 
@@ -23,6 +45,24 @@ function Home() {
     return <div>Redirecting...</div>
   }
 
+
+  async function getAccountDetail(userId: string) {
+    try {
+      const docRef = doc(db, `users-activity/${userId}/account/account-detail`)
+      const docSnap = await getDoc(docRef)
+
+      if (docSnap.exists()) {
+        console.log("Document data:", docSnap.data())
+        return docSnap.data()
+      } else {
+        console.log("No such document!")
+        return null
+      }
+    } catch (error) {
+      console.log("Error getting account detail", error)
+
+    }
+  }
 
   async function onLogout() {
     console.log("Logout Clicked")
@@ -55,7 +95,7 @@ function Home() {
           >Welcome,</h1>
           <h1
             className="font-extrabold "
-          >User</h1>
+          >{userDetail?.fullname}</h1>
 
           <Button
             className="mt-6"

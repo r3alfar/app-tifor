@@ -22,11 +22,20 @@ import { Input } from "@/components/ui/input"
 import { Checkbox } from '@/components/ui/checkbox'
 import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 import { useToast } from '@/hooks/use-toast'
+import { doc, setDoc } from 'firebase/firestore'
+import { db } from '@/repository/firebase/config'
 
 type CardProps = ComponentProps<typeof Card>
 
 interface RegisterProps extends CardProps {
   onSwitchToLogin: () => void;
+}
+
+interface NewUser {
+  fullname: string;
+  employee_id: string;
+  email: string;
+  createdAt: Number;
 }
 
 const formSchema = z
@@ -63,10 +72,41 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
     console.log(values);
     const auth = getAuth();
     createUserWithEmailAndPassword(auth, values.email, values.password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const userCreds = userCredential.user;
         console.log(userCreds);
         console.log("Created user: ", userCredential);
+
+        const userUid = userCreds.uid;
+        const newUser: NewUser = {
+          fullname: values.fullname,
+          employee_id: values.employee_id,
+          email: values.email,
+          createdAt: Date.now()
+        }
+
+        if (userUid) {
+          console.log("userUid: ", userUid);
+
+          // const docRes = await addDoc(collection(db, `users-activity/${userUid}`), newUser)
+
+          try {
+            let act = "account-detail";
+            const accRef = doc(db, `users-activity/${userUid}/account`, act);
+            await setDoc(accRef, newUser).then(() => {
+              console.log("Document successfully written!");
+            })
+              .catch((error) => {
+                console.error("Error writing document: ", error);
+              });
+          } catch (error) {
+            console.log("Error: ", error);
+          }
+
+
+        }
+
+
         onSwitchToLogin();
         toast({
           title: "Register Success",
