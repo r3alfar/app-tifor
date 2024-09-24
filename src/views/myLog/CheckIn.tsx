@@ -34,7 +34,7 @@ import { useForm } from "react-hook-form"
 import { z } from "zod"
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
-import { ToastAction } from '@/components/ui/toast'
+// import { ToastAction } from '@/components/ui/toast'
 
 import { categories, statuses, priorities } from '../scheduleRecap/recap-detail/data/tasks.data'
 import { db, storage } from '@/repository/firebase/config'
@@ -43,7 +43,7 @@ import { doc, setDoc } from 'firebase/firestore'
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
 import { useAuthContext } from '../auth/AuthContext'
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
-import { format } from 'date-fns'
+import { addMonths, format, startOfMonth } from 'date-fns'
 import { PopoverContent } from '@radix-ui/react-popover'
 import { Calendar } from '@/components/ui/calendar'
 import { v4 as uuidv4 } from 'uuid'
@@ -122,6 +122,8 @@ export default function CheckIn({ className, ...props }: CardProps) {
   const navigate = useNavigate();
   const [error] = useState('');
   const user = useAuthContext();
+  const today = new Date();
+  const lastMonth = startOfMonth(addMonths(today, -1));
 
   //setup files to uplaod
   const [files, setFiles] = useState<File[] | null>([]);
@@ -151,11 +153,11 @@ export default function CheckIn({ className, ...props }: CardProps) {
     navigate('/home')
   }
 
-  async function resetForm() {
-    form.reset();
-    setFiles([]);
-    // form.setValue('category', "")
-  }
+  // async function resetForm() {
+  //   form.reset();
+  //   setFiles([]);
+  //   // form.setValue('category', "")
+  // }
 
   async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
     console.log("currentUser: ", user)
@@ -174,11 +176,6 @@ export default function CheckIn({ className, ...props }: CardProps) {
     try {
       // const storageRef = ref(storage, `attachments/${Date.now()}`);
       if (files?.length) {
-        // uploadBytes(storageRef, files[0]).then(async (snapshot) => {
-        //   const url = await getDownloadURL(snapshot.ref);
-        //   console.log("url: ", url)
-        //   console.log('Uploaded a blob or file! with url: ', snapshot);
-        // });
 
         for (const file of files) {
           const storageRef = ref(storage, `attachments/${Date.now()}`);
@@ -268,16 +265,24 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
 
     toast({
-      title: "Data Value",
-      // description: "There was a problem with your request.",
-      description: (
-        <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
-          {JSON.stringify(values, null, 2)}
-        </pre>
-      ),
-      action: <ToastAction altText="Try again" onClick={() => resetForm()}>Reset Form</ToastAction>,
+      title: "Success",
+      description: "Your data has been submitted.",
 
     })
+
+
+    // toast for debugging dev
+    // toast({
+    //   title: "Data Value",
+    //   // description: "There was a problem with your request.",
+    //   description: (
+    //     <pre style={{ whiteSpace: "pre-wrap", wordWrap: "break-word" }}>
+    //       {JSON.stringify(values, null, 2)}
+    //     </pre>
+    //   ),
+    //   action: <ToastAction altText="Try again" onClick={() => resetForm()}>Reset Form</ToastAction>,
+
+    // })
   }
 
 
@@ -477,7 +482,8 @@ export default function CheckIn({ className, ...props }: CardProps) {
                               selected={field.value}
                               onSelect={field.onChange}
                               disabled={(date) =>
-                                date < new Date()
+                                // date < new Date()
+                                date < lastMonth
 
                               }
                             />

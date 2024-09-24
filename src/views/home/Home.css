@@ -34,12 +34,12 @@ h2 {
 
 /* Specific styles for Home component */
 .font-semibold {
-  font-size: 3rem;
+  font-size: 2rem;
   /* Default size for larger screens */
 }
 
 .font-extrabold {
-  font-size: 9rem;
+  font-size: 4.5rem;
 }
 
 @media (max-width: 768px) {

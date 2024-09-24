@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom"
 
 
 
-const categoryMapping: {
+export const categoryMapping: {
   [key: string]: string
 } = {
   "doctor_meeting": "Doctor Meeting",

@@ -22,6 +22,7 @@ import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
 import { useNavigate } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 import { ToastAction } from "@/components/ui/toast"
+import PasswordInput from '@/components/custom/forms/PasswordInput'
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -107,7 +108,11 @@ function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Enter Password" {...field} />
+                      {/* <Input type="password" placeholder="Enter Password" {...field} /> */}
+                      <PasswordInput
+                        placeholder="Enter Password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

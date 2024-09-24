@@ -24,6 +24,7 @@ import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 import { useToast } from '@/hooks/use-toast'
 import { doc, setDoc } from 'firebase/firestore'
 import { db } from '@/repository/firebase/config'
+import PasswordInput from '@/components/custom/forms/PasswordInput'
 
 type CardProps = ComponentProps<typeof Card>
 
@@ -192,7 +193,11 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
                   <FormItem className='space-y-0'>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Enter at least 8+ character" {...field} />
+                      {/* <Input type="password" placeholder="Enter at least 8+ character" {...field} /> */}
+                      <PasswordInput
+                        placeholder="Enter at least 8+ character"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -207,7 +212,11 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
                   <FormItem className='space-y-0'>
                     <FormLabel>Confirm Password</FormLabel>
                     <FormControl>
-                      <Input type="password" placeholder="Retype your password" {...field} />
+                      {/* <Input type="password" placeholder="Retype your password" {...field} /> */}
+                      <PasswordInput
+                        placeholder='Retype your password'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
