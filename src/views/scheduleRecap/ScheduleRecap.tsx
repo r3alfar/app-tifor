@@ -43,7 +43,6 @@ export default function Component() {
   const [error, setError] = useState<Error | string | null>(null);
   const [filteredMonthsData, setFilteredMonthsData] = useState<monthAct[]>([]);
 
-
   // let filteredMonthsData: monthAct[] = [];
 
   useEffect(() => {
@@ -109,6 +108,7 @@ export default function Component() {
             })
           }
         }
+        // console.log("final months", monthsStartEndDate)
       } catch (error: any) {
         setError(error);
         console.error("Error fetching activities:");
@@ -203,42 +203,73 @@ export default function Component() {
         {
           filteredMonthsData.length == 0 ? (<span>no data</span>)
             :
-            filteredMonthsData.map((month) =>
-            (
-              <AccordionItem value={month.name} key={month.name} className="border rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-2 bg-white hover:no-underline hover:bg-gray-50">
-                  <div className="flex items-center justify-between w-full">
-                    <div className="flex items-center">
-                      <span className="text-violet-600 bg-violet-100 rounded-full px-2 py-1 text-xs mr-2">
-                        {month.events} Events
-                      </span>
-                      <span className="font-bold">{month.name}</span>
-                    </div>
-                    {/* <ChevronDownIcon className="h-4 w-4 transition-transform duration-200" /> */}
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent>
-                  <div className="p-4 space-y-4 bg-slate-800">
-                    {month.items.map((item, itemIndex) => (
-                      <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => navigateTasks()}>
-                        <div className="flex justify-between items-center">
-                          <h3 className="text-3xl font-bold">{categoryMapping[item.category]}</h3>
-                          <Button size="sm" variant="outline" className="bg-white">
-                            Detail
-                          </Button>
-                        </div>
-                        <div className="flex items-center mt-2 text-sm text-gray-600">
-                          <CalendarIcon className="h-4 w-4 mr-2" />
-                          <span>{item.date}</span>
-                          <span className="mx-2">•</span>
-                          <span>{month.events} bookings</span>
-                        </div>
+            filteredMonthsData.map((month) => {
+              // setRenderedCategories(new Set())
+              const renderedCategories = new Set();
+              return (
+                <AccordionItem value={month.name} key={month.name} className="border rounded-lg overflow-hidden">
+                  <AccordionTrigger className="px-4 py-2 bg-white hover:no-underline hover:bg-gray-50">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center">
+                        <span className="text-violet-600 bg-violet-100 rounded-full px-2 py-1 text-xs mr-2">
+                          {month.events} Events
+                        </span>
+                        <span className="font-bold">{month.name}</span>
                       </div>
-                    ))}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            ))
+                      {/* <ChevronDownIcon className="h-4 w-4 transition-transform duration-200" /> */}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="p-4 space-y-4 bg-slate-800">
+                      {
+                        month.items.map((item, itemIndex) => {
+                          if (renderedCategories.has(item.category)) {
+                            return null;
+                          }
+                          renderedCategories.add(item.category);
+
+                          return (
+                            <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => navigateTasks()}>
+                              <div className="flex justify-between items-center">
+                                <h3 className="text-3xl font-bold">{categoryMapping[item.category]}</h3>
+                                <Button size="sm" variant="outline" className="bg-white">
+                                  Detail
+                                </Button>
+                              </div>
+                              <div className="flex items-center mt-2 text-sm text-gray-600">
+                                <CalendarIcon className="h-4 w-4 mr-2" />
+                                <span>{item.date}</span>
+                                <span className="mx-2">•</span>
+                                <span>{month.events} bookings</span>
+                              </div>
+                            </div>
+                          )
+                        })
+                      }
+
+
+                      {/* {month.items.map((item, itemIndex) => (
+                        <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => navigateTasks()}>
+                          <div className="flex justify-between items-center">
+                            <h3 className="text-3xl font-bold">{categoryMapping[item.category]}</h3>
+                            <Button size="sm" variant="outline" className="bg-white">
+                              Detail
+                            </Button>
+                          </div>
+                          <div className="flex items-center mt-2 text-sm text-gray-600">
+                            <CalendarIcon className="h-4 w-4 mr-2" />
+                            <span>{item.date}</span>
+                            <span className="mx-2">•</span>
+                            <span>{month.events} bookings</span>
+                          </div>
+                        </div>
+                      ))} */}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              )
+            }
+            )
         }
 
 
