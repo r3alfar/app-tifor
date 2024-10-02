@@ -84,8 +84,10 @@ export default function Component() {
 
       try {
         for (const month of monthsStartEndDate) {
-          const startOfMonth = Timestamp.fromDate(new Date(month.start));
-          const endOfMonth = Timestamp.fromDate(new Date(month.end));
+          //manually make indo time 00:00 to utc format
+          const startOfMonth = Timestamp.fromMillis(new Date(month.start).getTime() - (7 * 60 * 60 * 1000));
+          const endOfMonth = Timestamp.fromMillis(new Date(month.end).getTime() - (7 * 60 * 60 * 1000));
+          // console.log(`${month.name}=> start: ${startOfMonth} | end: ${endOfMonth}`)
 
 
           const q = query(
