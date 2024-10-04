@@ -26,6 +26,7 @@ interface monthAct {
   name: string;
   events: number;
   items: any[];
+  countPerCategory: any[];
   start: string;
   end: string;
 }
@@ -49,18 +50,18 @@ export default function Component() {
 
     const fetchDummyData = async () => {
       const monthsStartEndDate: monthAct[] = [
-        { name: 'January', start: '2024-01-01', end: '2024-01-31', events: 0, items: [] },
-        { name: 'February', start: '2024-02-01', end: '2024-02-29', events: 0, items: [] }, // Handle leap year if needed
-        { name: 'March', start: '2024-03-01', end: '2024-03-31', events: 0, items: [] },
-        { name: 'April', start: '2024-04-01', end: '2024-04-30', events: 0, items: [] },
-        { name: 'May', start: '2024-05-01', end: '2024-05-31', events: 0, items: [] },
-        { name: 'June', start: '2024-06-01', end: '2024-06-30', events: 0, items: [] },
-        { name: 'July', start: '2024-07-01', end: '2024-07-31', events: 0, items: [] },
-        { name: 'August', start: '2024-08-01', end: '2024-08-31', events: 0, items: [] },
-        { name: 'September', start: '2024-09-01', end: '2024-09-30', events: 0, items: [] },
-        { name: 'October', start: '2024-10-01', end: '2024-10-31', events: 0, items: [] },
-        { name: 'November', start: '2024-11-01', end: '2024-11-30', events: 0, items: [] },
-        { name: 'December', start: '2024-12-01', end: '2024-12-31', events: 0, items: [] },
+        { name: 'January', start: '2024-01-01', end: '2024-01-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'February', start: '2024-02-01', end: '2024-02-29', events: 0, items: [], countPerCategory: [] }, // Handle leap year if needed
+        { name: 'March', start: '2024-03-01', end: '2024-03-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'April', start: '2024-04-01', end: '2024-04-30', events: 0, items: [], countPerCategory: [] },
+        { name: 'May', start: '2024-05-01', end: '2024-05-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'June', start: '2024-06-01', end: '2024-06-30', events: 0, items: [], countPerCategory: [] },
+        { name: 'July', start: '2024-07-01', end: '2024-07-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'August', start: '2024-08-01', end: '2024-08-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'September', start: '2024-09-01', end: '2024-09-30', events: 0, items: [], countPerCategory: [] },
+        { name: 'October', start: '2024-10-01', end: '2024-10-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'November', start: '2024-11-01', end: '2024-11-30', events: 0, items: [], countPerCategory: [] },
+        { name: 'December', start: '2024-12-01', end: '2024-12-31', events: 0, items: [], countPerCategory: [] },
       ];
       setFilteredMonthsData([])
       console.log("begin fetch")
@@ -102,7 +103,19 @@ export default function Component() {
             console.log("activities found for this month.");
             querySnapshot.forEach(doc => {
               const activityData = { id: doc.id, ...doc.data() }
-              // console.log(activityData)
+              // console.log("activityData:", activityData)
+              if (doc.data().category) {
+                // const category = categoryMapping[doc.data().category];
+                const category = doc.data().category;
+                const existingCategory = month.countPerCategory.find((item: any) => item.name === category);
+
+                if (existingCategory) {
+                  existingCategory.count++;
+                } else {
+                  month.countPerCategory.push({ name: category, count: 1 });
+                }
+              }
+              // console.log("month.countPerCategory", month.countPerCategory)
               month.items.push(activityData)
               month.events++;
             })
@@ -206,6 +219,7 @@ export default function Component() {
             filteredMonthsData.map((month) => {
               // setRenderedCategories(new Set())
               const renderedCategories = new Set();
+              const countPerCategory = month.countPerCategory;
               return (
                 <AccordionItem value={month.name} key={month.name} className="border rounded-lg overflow-hidden">
                   <AccordionTrigger className="px-4 py-2 bg-white hover:no-underline hover:bg-gray-50">
@@ -223,6 +237,7 @@ export default function Component() {
                     <div className="p-4 space-y-4 bg-slate-800">
                       {
                         month.items.map((item, itemIndex) => {
+                          const itemCount = countPerCategory.find((cpc: any) => cpc.name === item.category);
                           if (renderedCategories.has(item.category)) {
                             return null;
                           }
@@ -240,7 +255,7 @@ export default function Component() {
                                 <CalendarIcon className="h-4 w-4 mr-2" />
                                 <span>{item.date}</span>
                                 <span className="mx-2">•</span>
-                                <span>{month.events} bookings</span>
+                                <span>{itemCount ? itemCount.count : 0} bookings</span>
                               </div>
                             </div>
                           )
