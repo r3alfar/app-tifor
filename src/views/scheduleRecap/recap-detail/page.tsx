@@ -5,7 +5,7 @@ import { columns } from "./components/columns"
 import { DataTable } from "./components/data-table"
 import { UserNav } from "./components/user-nav"
 import { useEffect, useState } from "react"
-import { collection, getDocs } from "firebase/firestore"
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore"
 import { db } from "@/repository/firebase/config"
 import { useAuthContext } from "@/views/auth/AuthContext"
 
@@ -54,8 +54,13 @@ export default function TasksPage() {
         const activitiesRef = collection(db, `users-activity/${userId}/activities`);
         const docSnap = await getDocs(activitiesRef);
 
-        const data = docSnap.docs.map((doc) => doc.data());
+        const data = docSnap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        } as any));
+
         setMyTasks(data.map(item => ({
+          id: item.id,
           description: item.description,
           status: item.status,
           categories: item.category,
@@ -76,7 +81,31 @@ export default function TasksPage() {
     }
 
     fetchData()
-  }, [])
+  }, [userId])
+
+
+  const updateTaskStatus = async (taskId: string, newStatus: string) => {
+    console.log("updateTaskStatus: ", taskId, newStatus);
+    try {
+      if (!userId) {
+        throw new Error('User ID is undefined');
+      }
+
+      const taskRef = doc(db, `users-activity/${userId}/activities`, taskId);
+      await updateDoc(taskRef, { status: newStatus });
+
+      // Update local state
+      setMyTasks(prevTasks =>
+        prevTasks.map(task =>
+          task.id === taskId ? { ...task, status: newStatus } : task
+        )
+      );
+    } catch (error) {
+      console.error('Error updating task status:', error);
+      // Handle error (e.g., show a notification to the user)
+    }
+  };
+
 
   if (loading) {
     return <div>Loading...</div>;
@@ -117,7 +146,7 @@ export default function TasksPage() {
           </div>
         </div>
         {/* <DataTable data={tasks} columns={columns} /> */}
-        <DataTable data={myTasks} columns={columns} />
+        <DataTable data={myTasks} columns={columns} updateTaskStatus={updateTaskStatus} />
       </div>
     </>
   )

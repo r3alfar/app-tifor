@@ -1,9 +1,8 @@
-
-
 import * as React from "react"
 import {
   ColumnDef,
   ColumnFiltersState,
+  Cell,
   SortingState,
   VisibilityState,
   flexRender,
@@ -25,18 +24,29 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
 import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import "./data-table.css"
+import { statuses } from "../data/tasks.data"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  data: TData[],
+  updateTaskStatus: (taskId: string, newStatus: string) => Promise<void>
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  updateTaskStatus,
 }: DataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
@@ -45,6 +55,8 @@ export function DataTable<TData, TValue>({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
+  const [editingCell, setEditingCell] = React.useState<{ rowIndex: number; columnId: string } | null>(null)
+
 
   const table = useReactTable({
     data,
@@ -68,10 +80,71 @@ export function DataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   })
 
-  const openModal = () => {
-    // setOpen(true)
-    console.log("open modal clicked");
-  }
+
+  // const openModal = (rowData: TData) => {
+  // setOpen(true)
+  // console.log("open modal clicked", rowData);
+  // }
+
+  // const openModalColumn = (columnData: Cell<TData, TValue>) => {
+  // setOpen(true)
+  //   console.log("open modal column", columnData);
+  //   console.log("getValue", columnData.getValue());
+  //   console.log("getRenderValue", columnData.renderValue());
+  //   console.log("getContext", columnData.getContext());
+  // }
+
+  // const updateData = (rowIndex: number, columnId: string, value: any) => {
+  //   console.log(`columnId: ${columnId}, value: ${value}`);
+  // setData(old =>
+  //   old.map((row, index) => {
+  //     if (index === rowIndex) {
+  //       return {
+  //         ...old[rowIndex],
+  //         [columnId]: value,
+  //       }
+  //     }
+  //     return row
+  //   })
+  // )
+  // }
+
+
+  const renderCell = React.useCallback(
+    (cell: Cell<TData, TValue>, rowIndex: number) => {
+      const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.columnId === cell.column.id
+      const columnId = cell.column.id
+
+      if (isEditing && columnId === "status") {
+        return (
+          <Select
+            defaultValue={cell.getValue() as string}
+            onValueChange={(value) => {
+              const taskId = (cell.row.original as any).id
+              console.log("page.tsx: ", taskId);
+              updateTaskStatus(taskId, value)
+              // updateData(rowIndex, columnId, value)
+              setEditingCell(null)
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {statuses.map((status) => (
+                <SelectItem key={status.value} value={status.value}>
+                  {status.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )
+      }
+
+      return flexRender(cell.column.columnDef.cell, cell.getContext())
+    },
+    [editingCell, updateTaskStatus]
+  )
 
   return (
     <div className="space-y-4">
@@ -100,19 +173,30 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody className="tbRow">
             {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows.map((row, rowIndex) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  onClick={() => openModal()}
+                  // onClick={() => openModal(row.original)}
                   className="hover:bg-[#D7DAFD] hover:cursor-pointer "
                 >
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
+                    <TableCell
+                      key={cell.id}
+                      onClick={() => {
+                        if (cell.column.id === "status") {
+                          setEditingCell({
+                            rowIndex: rowIndex,
+                            columnId: cell.column.id,
+                          })
+                        }
+                      }}
+                    >
+                      {renderCell(cell, rowIndex)}
+                      {/* {flexRender(
                         cell.column.columnDef.cell,
                         cell.getContext()
-                      )}
+                      )} */}
                     </TableCell>
                   ))}
                 </TableRow>
