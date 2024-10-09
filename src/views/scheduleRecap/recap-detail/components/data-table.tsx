@@ -36,6 +36,7 @@ import { DataTablePagination } from "./data-table-pagination"
 import { DataTableToolbar } from "./data-table-toolbar"
 import "./data-table.css"
 import { statuses } from "../data/tasks.data"
+import { Badge } from "@/components/ui/badge"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -133,7 +134,13 @@ export function DataTable<TData, TValue>({
             <SelectContent>
               {statuses.map((status) => (
                 <SelectItem key={status.value} value={status.value}>
-                  {status.label}
+                  {status.icon && (
+                    <Badge variant="secondary">
+                      <status.icon className="mr-2 h-4 w-4 text-muted-foreground" />
+                      <span>{status.label}</span>
+                    </Badge>
+
+                  )}
                 </SelectItem>
               ))}
             </SelectContent>
