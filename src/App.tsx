@@ -7,6 +7,7 @@ import CheckIn from './views/myLog/CheckIn'
 import ScheduleRecap from './views/scheduleRecap/ScheduleRecap'
 import React from 'react'
 import TasksPage from './views/scheduleRecap/recap-detail/page'
+import ProtectedRoute from './views/auth/ProtectedRoute'
 
 // const AsyncComponent = React.lazy(() => import('./views/scheduleRecap/recap-detail/page'))
 
@@ -24,10 +25,12 @@ function App() {
         <main>
           <Routes>
             <Route path='' element={<Auth />} />
-            <Route path='/home' element={<NavbarWrapper><Home /></NavbarWrapper>} />
-            <Route path='/mylog' element={<NavbarWrapper><CheckIn className='w-[400px]' /></NavbarWrapper>} />
-            <Route path='/schedule' element={<NavbarWrapper><ScheduleRecap /></NavbarWrapper>} />
-            <Route path='/tasks' element={<NavbarWrapper><TasksPage /></NavbarWrapper>} />
+            <Route element={<ProtectedRoute />}>
+              <Route path='/home' element={<NavbarWrapper><Home /></NavbarWrapper>} />
+              <Route path='/mylog' element={<NavbarWrapper><CheckIn className='w-[400px]' /></NavbarWrapper>} />
+              <Route path='/schedule' element={<NavbarWrapper><ScheduleRecap /></NavbarWrapper>} />
+              <Route path='/tasks' element={<NavbarWrapper><TasksPage /></NavbarWrapper>} />
+            </Route>
           </Routes>
         </main>
       </div>

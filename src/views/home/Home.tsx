@@ -7,7 +7,7 @@ import './Home.css'
 import { doc, getDoc } from 'firebase/firestore'
 import { db } from '@/repository/firebase/config'
 
-interface UserDetail {
+export interface UserDetail {
   fullname: string;
   employee_id: string;
   email: string;
@@ -39,6 +39,19 @@ function Home() {
         })
     }
   }, [user, navigate])
+
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       console.log("user persist")
+  //       setUser(user);
+  //     } else {
+  //       console.log("user not persist")
+  //       setUser(null);
+  //     }
+  //   });
+  //   return () => unsubscribe();
+  // }, [auth])
 
   if (!user) {
     console.log("PUser not logged in");
