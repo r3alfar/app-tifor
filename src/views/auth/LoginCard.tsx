@@ -48,32 +48,73 @@ function LoginCard({ onSwitchToRegister, className, ...props }: LoginProps) {
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
-    const auth = getAuth()
-    signInWithEmailAndPassword(auth, values.employee_id, values.password)
-      .then((userCredential) => {
-        // Signed in
-        const user = userCredential.user;
-        console.log(user);
+    // console.log(values)
+    // const auth = getAuth()
+    // signInWithEmailAndPassword(auth, values.employee_id, values.password)
+    //   .then((userCredential) => {
+    //     // Signed in
+    //     const user = userCredential.user;
+    //     console.log(user);
+    //     toast({
+    //       variant: "default",
+    //       title: "Successfully Logged in",
+    //     })
+    //     navigate('/home')
+    //     // ...
+    //   })
+    //   .catch((error) => {
+    //     form.reset();
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     toast({
+    //       variant: "destructive",
+    //       title: "Uh oh! Something went wrong.",
+    //       description: "There was a problem with your request.",
+    //       action: <ToastAction altText="Try again">Try again</ToastAction>,
+    //     })
+    //     console.log(`Error ${errorCode} Login : ${errorMessage}`);
+    //   })
+
+      // new login flow
+      console.log("base url: ", import.meta.env.VITE_BACKEND_BASE_URL);
+      try {
+        const res = await window.api.post(
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/login`,
+          {
+            email: values.employee_id,
+            password: values.password
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': import.meta.env.VITE_BACKEND_API_KEY
+            }
+          }
+        );
+
+        // store token in local storage
+        localStorage.setItem('access_token', res.data.data.access_token);
+        localStorage.setItem('refresh_token', res.data.data.refresh_token);
+
         toast({
           variant: "default",
           title: "Successfully Logged in",
         })
         navigate('/home')
-        // ...
-      })
-      .catch((error) => {
-        form.reset();
-        const errorCode = error.code;
-        const errorMessage = error.message;
+        console.log(res);
+      } catch (error) {
+        console.log(error);
         toast({
           variant: "destructive",
-          title: "Uh oh! Something went wrong.",
-          description: "There was a problem with your request.",
-          action: <ToastAction altText="Try again">Try again</ToastAction>,
+          title: "Login Failed",
+          description: "Invalid credentials"
         })
-        console.log(`Error ${errorCode} Login : ${errorMessage}`);
-      })
+      } finally{
+        // form.reset()
+      }
+      
+
+
   }
   return (
     <Card className={cn(className)} {...props}>
