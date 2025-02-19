@@ -71,42 +71,81 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
-    const auth = getAuth();
-    createUserWithEmailAndPassword(auth, values.email, values.password)
-      .then(async (userCredential) => {
-        const userCreds = userCredential.user;
-        console.log(userCreds);
-        console.log("Created user: ", userCredential);
+    // const auth = getAuth();
+    // createUserWithEmailAndPassword(auth, values.email, values.password)
+    //   .then(async (userCredential) => {
+    //     const userCreds = userCredential.user;
+    //     console.log(userCreds);
+    //     console.log("Created user: ", userCredential);
 
-        const userUid = userCreds.uid;
-        const newUser: NewUser = {
-          fullname: values.fullname,
-          employee_id: values.employee_id,
-          email: values.email,
-          createdAt: Date.now()
-        }
+    //     const userUid = userCreds.uid;
+    //     const newUser: NewUser = {
+    //       fullname: values.fullname,
+    //       employee_id: values.employee_id,
+    //       email: values.email,
+    //       createdAt: Date.now()
+    //     }
 
-        if (userUid) {
-          console.log("userUid: ", userUid);
+    //     if (userUid) {
+    //       console.log("userUid: ", userUid);
 
-          // const docRes = await addDoc(collection(db, `users-activity/${userUid}`), newUser)
+    //       // const docRes = await addDoc(collection(db, `users-activity/${userUid}`), newUser)
 
-          try {
-            let act = "account-detail";
-            const accRef = doc(db, `users-activity/${userUid}/account`, act);
-            await setDoc(accRef, newUser).then(() => {
-              console.log("Document successfully written!");
-            })
-              .catch((error) => {
-                console.error("Error writing document: ", error);
-              });
-          } catch (error) {
-            console.log("Error: ", error);
+    //       try {
+    //         let act = "account-detail";
+    //         const accRef = doc(db, `users-activity/${userUid}/account`, act);
+    //         await setDoc(accRef, newUser).then(() => {
+    //           console.log("Document successfully written!");
+    //         })
+    //           .catch((error) => {
+    //             console.error("Error writing document: ", error);
+    //           });
+    //       } catch (error) {
+    //         console.log("Error: ", error);
+    //       }
+
+
+    //     }
+
+
+    //     onSwitchToLogin();
+    //     toast({
+    //       title: "Register Success",
+    //       description: (
+    //         <div className='flex flex-col'>
+    //           <span>Succesfully Register</span>
+    //           <span>Please Login to Continue</span>
+    //         </div>
+    //       ),
+
+    //     });
+
+
+    //   })
+    //   .catch((error) => {
+    //     const errorCode = error.code;
+    //     const errorMessage = error.message;
+    //     console.log(`Error ${errorCode} Create user : ${errorMessage}`);
+
+    //   });
+
+      try {
+        const res = await window.api.post(
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/users`,
+          {
+            email: values.employee_id,
+            password: values.password,
+            fullname: values.fullname,
+            employeee_id: values.employee_id,
+            // role
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': import.meta.env.VITE_BACKEND_API_KEY
+            }
           }
-
-
-        }
-
+        );
 
         onSwitchToLogin();
         toast({
@@ -119,15 +158,17 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
           ),
 
         });
-
-
-      })
-      .catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message;
-        console.log(`Error ${errorCode} Create user : ${errorMessage}`);
-
-      });
+      } catch (error) {
+        toast({
+          title: "Register Failed",
+          description: (
+            <div className='flex flex-col'>
+              <span>Failed to Register</span>
+              <span>Please try again</span>
+            </div>
+          ),
+        });
+      }
   }
 
   return (
