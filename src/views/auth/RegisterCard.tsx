@@ -131,13 +131,12 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
 
       try {
         const res = await window.api.post(
-          `${import.meta.env.VITE_BACKEND_BASE_URL}/users`,
+          `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
           {
-            email: values.employee_id,
+            email: values.email,
             password: values.password,
             fullname: values.fullname,
             employeee_id: values.employee_id,
-            // role
           },
           {
             headers: {
