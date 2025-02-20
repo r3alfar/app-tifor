@@ -174,9 +174,9 @@ export const columns: ColumnDef<Task>[] = [
     ),
     cell: ({ row }) => {
       const schedule: string = row.getValue("schedule")
-      const timeInMillis = parseInt(schedule) * 1000;
-      console.log("schedule", schedule)
-      let dateFormat = new Date(timeInMillis).toLocaleDateString('id-ID', {
+      // const timeInMillis = parseInt(schedule) * 1000;
+      // console.log("schedule", schedule)
+      let date = new Date(schedule).toLocaleDateString('id-ID', {
         day: "numeric",
         month: "short",
         year: "numeric"
@@ -191,7 +191,7 @@ export const columns: ColumnDef<Task>[] = [
       // })
 
       return (
-        <div className="w-[80px]">{dateFormat}</div>
+        <div className="w-[80px]">{date}</div>
       )
     },
     // enableSorting: false,
