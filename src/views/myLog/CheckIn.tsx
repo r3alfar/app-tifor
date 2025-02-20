@@ -133,7 +133,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
     },
     multiple: true,
     maxFiles: 4,
-    maxSize: 1 * 1024 * 1024,
+    maxSize: 5 * 1024 * 1024,
   } satisfies DropzoneOptions;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -153,57 +153,26 @@ export default function CheckIn({ className, ...props }: CardProps) {
     navigate('/home')
   }
 
-  // async function resetForm() {
-  //   form.reset();
-  //   setFiles([]);
-  //   // form.setValue('category', "")
-  // }
+  async function resetForm() {
+    form.reset();
+    setFiles([]);
+    // form.setValue('category', "")
+  }
 
   async function onSubmit(values: z.infer<typeof formSchema>, files?: File[] | null) {
     // console.log("currentUser: ", user)
-    console.log(values);
-    console.log("stringify obj", JSON.stringify(values));
+    // console.log(values);
+    // console.log("stringify obj", JSON.stringify(values));
     // console.log(files);
     let activityLogModel = {} as ActivityLogModel;
     const v = values;
-    v.schedule.toString();
+    // v.schedule.toString();
+    const dateIsoString = v.schedule.toISOString();
     Object.assign(activityLogModel, v)
     const userDetail = JSON.parse(localStorage.getItem("userDetail") || '{}');
     activityLogModel.user_id = userDetail.id;
+    activityLogModel.schedule = dateIsoString;
     console.log("assigning values to interface: ", activityLogModel)
-
-
-    // test uplaod image
-    // let uploadedImageUrls: string[] = [];
-    // try {
-    //   // const storageRef = ref(storage, `attachments/${Date.now()}`);
-    //   if (files?.length) {
-
-    //     for (const file of files) {
-    //       const storageRef = ref(storage, `attachments/${Date.now()}`);
-    //       await uploadBytes(storageRef, file).then(async (snapshot) => {
-    //         await getDownloadURL(snapshot.ref).then(url => {
-    //           uploadedImageUrls.push(url);
-    //         });
-
-    //         console.log('Uploaded a blob or file!');
-    //       });
-    //     }
-
-
-    //   }
-    // } catch (error) {
-    //   console.log("error adding image", error);
-    // }
-
-    // console.log("uploadedImageUrls: ", uploadedImageUrls)
-    // if (uploadedImageUrls.length) {
-    //   console.log("imageUrl is present")
-    //   activityLogModel.imageUrls = uploadedImageUrls;
-    // } else {
-    //   console.log("imageUrl is somehow not present")
-    //   activityLogModel.imageUrls = uploadedImageUrls;
-    // }
 
     // uplaod activity with image
     try {
@@ -239,61 +208,8 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
       console.log("res: ", res)
 
-      // const docRef = await addDoc(collection(db, "activity"), values);
-      // const myId = `123!!-${Date.now()}`
-
-      // const docIdByUid = `${user?.user?.uid}-${Date.now()}
-
-
-      // activityLogModel.userId = userId
-
-
-
-
-
-      // const currentYear = new Date(activityLogModel.schedule).getFullYear();
-      // const currentMonth = new Date(activityLogModel.schedule).getMonth() + 1;
-      // // const date = new Date(parseInt(activityLogModel.timestamp))
-
-      // console.log("currentYear: ", currentYear)
-      // console.log("currentMonth: ", currentMonth)
-
-      // //write to main activity
-      // if (user?.user?.uid) {
-      //   console.log("user?.user?.uid: ", user?.user?.uid);
-      //   activityLogModel.userId = user?.user?.uid;
-      //   activityLogModel.timestamp = Date.now().toString()
-      // }
-      // let activityId = uuidv4();
-      // const docRef = doc(db, `users-activity/${activityLogModel.userId}/activities`, activityId);
-
-      // console.log("activityId: ", activityId)
-
-      // await setDoc(docRef, activityLogModel).then(() => {
-      //   console.log("success")
-      //   activityId = "";
-      //   form.reset();
-      // })
-
-      // await updateDoc(docRef, {
-      //   [`${activityId}`]: activityLogModel
-      // });
-
-      // write to activities by month
-      // const monthRef = doc(db, `activities_by_month`, `${currentYear}-${currentMonth}`)
-      // await setDoc(monthRef, {
-      //   [docRef.id]: {
-      //     ...activityLogModel,
-      //   }
-      // }, {
-      //   merge: true,
-      // })
-
-      // write to activities by week
-      // const currentWeek = getWeekNumber(date);
-      // const weekRef = doc(db, `activities_by_week`, `${currentYear}-${currentMonth}-${currentWeek}`)
     } catch (error) {
-      console.log("error adding document", error);
+      console.log("error adding activity", error);
     }
 
 
@@ -301,8 +217,9 @@ export default function CheckIn({ className, ...props }: CardProps) {
     toast({
       title: "Success",
       description: "Your data has been submitted.",
-
     })
+    resetForm();
+
 
 
     // toast for debugging dev
