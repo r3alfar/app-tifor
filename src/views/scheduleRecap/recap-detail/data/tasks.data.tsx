@@ -37,19 +37,9 @@ export const categories = [
 
 export const statuses = [
   {
-    value: "backlog",
-    label: "Backlog",
-    icon: QuestionMarkCircledIcon,
-  },
-  {
     value: "todo",
     label: "Todo",
     icon: CircleIcon,
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
-    icon: StopwatchIcon,
   },
   {
     value: "done",
@@ -57,8 +47,8 @@ export const statuses = [
     icon: CheckCircledIcon,
   },
   {
-    value: "canceled",
-    label: "Canceled",
+    value: "cancelled",
+    label: "Cancelled",
     icon: CrossCircledIcon,
   },
 ]

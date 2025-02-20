@@ -57,11 +57,11 @@ interface ActivityLogModel {
   status: string;
   description: string;
   category: string;
-  createdAt: string;
-  updatedAt: string;
-  userId: string;
-  imageUrls: string[];
-  timestamp: string;
+  createdAt?: string;
+  updatedAt?: string;
+  user_id?: string;
+  attachments?: string[];
+  timestamp?: string;
 }
 
 type CardProps = ComponentProps<typeof Card>
@@ -121,7 +121,7 @@ export default function CheckIn({ className, ...props }: CardProps) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [error] = useState('');
-  const user = useAuthContext();
+  // const user = useAuthContext();
   const today = new Date();
   const lastMonth = startOfMonth(addMonths(today, -1));
 
@@ -159,52 +159,86 @@ export default function CheckIn({ className, ...props }: CardProps) {
   //   // form.setValue('category', "")
   // }
 
-  async function onSubmit(values: z.infer<typeof formSchema>, files: File[] | null) {
-    console.log("currentUser: ", user)
+  async function onSubmit(values: z.infer<typeof formSchema>, files?: File[] | null) {
+    // console.log("currentUser: ", user)
     console.log(values);
     console.log("stringify obj", JSON.stringify(values));
-    console.log(files);
+    // console.log(files);
     let activityLogModel = {} as ActivityLogModel;
     const v = values;
     v.schedule.toString();
     Object.assign(activityLogModel, v)
+    const userDetail = JSON.parse(localStorage.getItem("userDetail") || '{}');
+    activityLogModel.user_id = userDetail.id;
     console.log("assigning values to interface: ", activityLogModel)
 
 
     // test uplaod image
-    let uploadedImageUrls: string[] = [];
-    try {
-      // const storageRef = ref(storage, `attachments/${Date.now()}`);
-      if (files?.length) {
+    // let uploadedImageUrls: string[] = [];
+    // try {
+    //   // const storageRef = ref(storage, `attachments/${Date.now()}`);
+    //   if (files?.length) {
 
-        for (const file of files) {
-          const storageRef = ref(storage, `attachments/${Date.now()}`);
-          await uploadBytes(storageRef, file).then(async (snapshot) => {
-            await getDownloadURL(snapshot.ref).then(url => {
-              uploadedImageUrls.push(url);
-            });
+    //     for (const file of files) {
+    //       const storageRef = ref(storage, `attachments/${Date.now()}`);
+    //       await uploadBytes(storageRef, file).then(async (snapshot) => {
+    //         await getDownloadURL(snapshot.ref).then(url => {
+    //           uploadedImageUrls.push(url);
+    //         });
 
-            console.log('Uploaded a blob or file!');
-          });
-        }
+    //         console.log('Uploaded a blob or file!');
+    //       });
+    //     }
 
 
-      }
-    } catch (error) {
-      console.log("error adding image", error);
-    }
+    //   }
+    // } catch (error) {
+    //   console.log("error adding image", error);
+    // }
 
-    console.log("uploadedImageUrls: ", uploadedImageUrls)
-    if (uploadedImageUrls.length) {
-      console.log("imageUrl is present")
-      activityLogModel.imageUrls = uploadedImageUrls;
-    } else {
-      console.log("imageUrl is somehow not present")
-      activityLogModel.imageUrls = uploadedImageUrls;
-    }
+    // console.log("uploadedImageUrls: ", uploadedImageUrls)
+    // if (uploadedImageUrls.length) {
+    //   console.log("imageUrl is present")
+    //   activityLogModel.imageUrls = uploadedImageUrls;
+    // } else {
+    //   console.log("imageUrl is somehow not present")
+    //   activityLogModel.imageUrls = uploadedImageUrls;
+    // }
 
     // uplaod activity with image
     try {
+
+      const formData = new FormData();
+      if (activityLogModel.user_id) formData.append('user_id', activityLogModel.user_id);
+      if (activityLogModel.location) formData.append('location', activityLogModel.location);
+      if (activityLogModel.schedule) formData.append('schedule', activityLogModel.schedule);
+      if (activityLogModel.priority) formData.append('priority', activityLogModel.priority);
+      if (activityLogModel.status) formData.append('status', activityLogModel.status);
+      if (activityLogModel.description) formData.append('description', activityLogModel.description);
+      if (activityLogModel.category) formData.append('category', activityLogModel.category);      
+
+      // append files
+      if (files) {
+        for (const file of files) {
+          formData.append('files', file);
+        }
+      }
+      
+
+      const res = await window.api.post(
+        `${import.meta.env.VITE_BACKEND_BASE_URL}/activity/check-in`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'x-api-key': import.meta.env.VITE_BACKEND_API_KEY,
+            'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+          }
+        }
+      );
+
+      console.log("res: ", res)
+
       // const docRef = await addDoc(collection(db, "activity"), values);
       // const myId = `123!!-${Date.now()}`
 
@@ -217,29 +251,29 @@ export default function CheckIn({ className, ...props }: CardProps) {
 
 
 
-      const currentYear = new Date(activityLogModel.schedule).getFullYear();
-      const currentMonth = new Date(activityLogModel.schedule).getMonth() + 1;
-      // const date = new Date(parseInt(activityLogModel.timestamp))
+      // const currentYear = new Date(activityLogModel.schedule).getFullYear();
+      // const currentMonth = new Date(activityLogModel.schedule).getMonth() + 1;
+      // // const date = new Date(parseInt(activityLogModel.timestamp))
 
-      console.log("currentYear: ", currentYear)
-      console.log("currentMonth: ", currentMonth)
+      // console.log("currentYear: ", currentYear)
+      // console.log("currentMonth: ", currentMonth)
 
-      //write to main activity
-      if (user?.user?.uid) {
-        console.log("user?.user?.uid: ", user?.user?.uid);
-        activityLogModel.userId = user?.user?.uid;
-        activityLogModel.timestamp = Date.now().toString()
-      }
-      let activityId = uuidv4();
-      const docRef = doc(db, `users-activity/${activityLogModel.userId}/activities`, activityId);
+      // //write to main activity
+      // if (user?.user?.uid) {
+      //   console.log("user?.user?.uid: ", user?.user?.uid);
+      //   activityLogModel.userId = user?.user?.uid;
+      //   activityLogModel.timestamp = Date.now().toString()
+      // }
+      // let activityId = uuidv4();
+      // const docRef = doc(db, `users-activity/${activityLogModel.userId}/activities`, activityId);
 
-      console.log("activityId: ", activityId)
+      // console.log("activityId: ", activityId)
 
-      await setDoc(docRef, activityLogModel).then(() => {
-        console.log("success")
-        activityId = "";
-        form.reset();
-      })
+      // await setDoc(docRef, activityLogModel).then(() => {
+      //   console.log("success")
+      //   activityId = "";
+      //   form.reset();
+      // })
 
       // await updateDoc(docRef, {
       //   [`${activityId}`]: activityLogModel
