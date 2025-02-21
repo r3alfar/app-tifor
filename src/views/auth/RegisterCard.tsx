@@ -20,10 +20,7 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from '@/components/ui/checkbox'
-import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 import { useToast } from '@/hooks/use-toast'
-import { doc, setDoc } from 'firebase/firestore'
-import { db } from '@/repository/firebase/config'
 import PasswordInput from '@/components/custom/forms/PasswordInput'
 
 type CardProps = ComponentProps<typeof Card>

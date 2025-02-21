@@ -5,9 +5,6 @@ import { columns } from "./components/columns"
 import { DataTable } from "./components/data-table"
 import { UserNav } from "./components/user-nav"
 import { useEffect, useState } from "react"
-import { collection, getDocs, doc, updateDoc } from "firebase/firestore"
-import { db } from "@/repository/firebase/config"
-import { useAuthContext } from "@/views/auth/AuthContext"
 
 // interface Task {
 //   id: string

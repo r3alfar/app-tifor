@@ -37,16 +37,11 @@ import { useToast } from '@/hooks/use-toast'
 // import { ToastAction } from '@/components/ui/toast'
 
 import { categories, statuses, priorities } from '../scheduleRecap/recap-detail/data/tasks.data'
-import { db, storage } from '@/repository/firebase/config'
-// import { db } from '@/repository/firebase/config'
-import { doc, setDoc } from 'firebase/firestore'
-import { getDownloadURL, ref, uploadBytes } from 'firebase/storage'
-import { useAuthContext } from '../auth/AuthContext'
+
 import { Popover, PopoverTrigger } from '@/components/ui/popover'
 import { addMonths, format, startOfMonth } from 'date-fns'
 import { PopoverContent } from '@radix-ui/react-popover'
 import { Calendar } from '@/components/ui/calendar'
-import { v4 as uuidv4 } from 'uuid'
 import { Label } from '@/components/ui/label'
 
 interface ActivityLogModel {
