@@ -3,12 +3,7 @@ import { Button } from "@/components/ui/button"
 import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { db } from '@/repository/firebase/config'
-import { Timestamp, collection, getDocs, query, where } from "firebase/firestore"
-import { useAuthContext } from "../auth/AuthContext"
 import { useNavigate } from "react-router-dom"
-
-
 
 export const categoryMapping: {
   [key: string]: string
@@ -20,124 +15,111 @@ export const categoryMapping: {
   "event_exhibition": "Event & Exhibition",
 }
 
-
-
 interface monthAct {
   name: string;
   events: number;
   items: any[];
   countPerCategory: any[];
-  start: string;
-  end: string;
 }
-
-
 
 const colors = ['bg-blue-100', 'bg-pink-100', 'bg-green-100']
 
 export default function Component() {
   const [openItem, setOpenItem] = useState<string[]>([]);
   const [tabValue, setTabValue] = useState<string>('month');
-  const user = useAuthContext();
+  
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | string | null>(null);
   const [filteredMonthsData, setFilteredMonthsData] = useState<monthAct[]>([]);
 
-  // let filteredMonthsData: monthAct[] = [];
-
   useEffect(() => {
-
-    const fetchDummyData = async () => {
+    const fetchData = async () => {
       const monthsStartEndDate: monthAct[] = [
-        { name: 'January', start: '2024-01-01', end: '2024-01-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'February', start: '2024-02-01', end: '2024-02-29', events: 0, items: [], countPerCategory: [] }, // Handle leap year if needed
-        { name: 'March', start: '2024-03-01', end: '2024-03-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'April', start: '2024-04-01', end: '2024-04-30', events: 0, items: [], countPerCategory: [] },
-        { name: 'May', start: '2024-05-01', end: '2024-05-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'June', start: '2024-06-01', end: '2024-06-30', events: 0, items: [], countPerCategory: [] },
-        { name: 'July', start: '2024-07-01', end: '2024-07-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'August', start: '2024-08-01', end: '2024-08-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'September', start: '2024-09-01', end: '2024-09-30', events: 0, items: [], countPerCategory: [] },
-        { name: 'October', start: '2024-10-01', end: '2024-10-31', events: 0, items: [], countPerCategory: [] },
-        { name: 'November', start: '2024-11-01', end: '2024-11-30', events: 0, items: [], countPerCategory: [] },
-        { name: 'December', start: '2024-12-01', end: '2024-12-31', events: 0, items: [], countPerCategory: [] },
+        { name: 'January', events: 0, items: [], countPerCategory: [] },
+        { name: 'February', events: 0, items: [], countPerCategory: [] },
+        { name: 'March', events: 0, items: [], countPerCategory: [] },
+        { name: 'April', events: 0, items: [], countPerCategory: [] },
+        { name: 'May', events: 0, items: [], countPerCategory: [] },
+        { name: 'June', events: 0, items: [], countPerCategory: [] },
+        { name: 'July', events: 0, items: [], countPerCategory: [] },
+        { name: 'August', events: 0, items: [], countPerCategory: [] },
+        { name: 'September', events: 0, items: [], countPerCategory: [] },
+        { name: 'October', events: 0, items: [], countPerCategory: [] },
+        { name: 'November', events: 0, items: [], countPerCategory: [] },
+        { name: 'December', events: 0, items: [], countPerCategory: [] },
       ];
-      setFilteredMonthsData([])
-      console.log("begin fetch")
-      const startMonth = Timestamp.fromDate(new Date('2024-09-01'))
-      const endMonth = Timestamp.fromDate(new Date('2024-09-30'))
-
-      console.log("startMonth", startMonth)
-      console.log("endMonth", typeof endMonth)
-
-      let userId: string;
-      if (user?.user?.uid) {
-        userId = user.user?.uid
-      } else {
-        userId = ""
-      }
-      console.log("userId", userId)
-
-      //declare collection refrence
-      const activitiesRef = collection(db, 'users-activity', userId, 'activities');
 
       try {
-        for (const month of monthsStartEndDate) {
-          //manually make indo time 00:00 to utc format
-          const startOfMonth = Timestamp.fromMillis(new Date(month.start).getTime() - (7 * 60 * 60 * 1000));
-          const endOfMonth = Timestamp.fromMillis(new Date(month.end).getTime() - (7 * 60 * 60 * 1000));
-          // console.log(`${month.name}=> start: ${startOfMonth} | end: ${endOfMonth}`)
+        const storedUserDetail = JSON.parse(localStorage.getItem("userDetail") || '{}');
+        const user_id = storedUserDetail.id;
+        const token = localStorage.getItem('access_token');
 
+        const currentYear = new Date().getFullYear();
+        const qParams = {
+          filter: {
+            user_created: {
+              _eq: user_id
+            },
+            schedule: {
+              _between: [`${currentYear}-01-01T00:00:00Z`, `${currentYear}-12-31T23:59:59Z`]
+            }
+          },
+          sort: ['timestamp']
+        };
 
-          const q = query(
-            activitiesRef,
-            where('schedule', '>=', startOfMonth),
-            where('schedule', '<=', endOfMonth)
-          );
-
-          const querySnapshot = await getDocs(q);
-          if (querySnapshot.empty) {
-            console.log("No activities found for this month.");
-          } else {
-            console.log("activities found for this month.");
-            querySnapshot.forEach(doc => {
-              const activityData = { id: doc.id, ...doc.data() }
-              // console.log("activityData:", activityData)
-              if (doc.data().category) {
-                // const category = categoryMapping[doc.data().category];
-                const category = doc.data().category;
-                const existingCategory = month.countPerCategory.find((item: any) => item.name === category);
-
-                if (existingCategory) {
-                  existingCategory.count++;
-                } else {
-                  month.countPerCategory.push({ name: category, count: 1 });
-                }
-              }
-              // console.log("month.countPerCategory", month.countPerCategory)
-              month.items.push(activityData)
-              month.events++;
-            })
+        const queryString = new URLSearchParams({
+          filter: JSON.stringify(qParams.filter)
+        }).toString();
+        
+        const url = `${import.meta.env.VITE_DIRECTUS_BASE_URL}/items/activity?${queryString}`;
+        
+        const response = await window.api.get(url, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
           }
-        }
-        // console.log("final months", monthsStartEndDate)
+        });
+
+        const yearlyData = response.data.data;
+
+        // Process yearly data into months
+        yearlyData.forEach((activity: any) => {
+          const activityDate = new Date(activity.schedule);
+          const monthIndex = activityDate.getMonth();
+          const monthData = monthsStartEndDate[monthIndex];
+        
+          // Check for unique activities for events counter
+          if (!monthData.items.some(item => item.id === activity.id)) {
+            monthData.events++;
+            monthData.items.push(activity);
+          }
+        
+          // Count all bookings per category
+          if (activity.category) {
+            const category = activity.category;
+            const existingCategory = monthData.countPerCategory.find((item: any) => item.name === category);
+        
+            if (existingCategory) {
+              existingCategory.count++;
+            } else {
+              monthData.countPerCategory.push({ name: category, count: 0 });
+            }
+          }
+        });
+        
+
+        setFilteredMonthsData(monthsStartEndDate.filter(month => month.events > 0));
       } catch (error: any) {
         setError(error);
-        console.error("Error fetching activities:");
+        console.error("Error fetching activities:", error);
       } finally {
-        setFilteredMonthsData(monthsStartEndDate.filter(month => month.events > 0))
-        // console.log("filteredMonthsData", filteredMonthsData)
         setLoading(false);
       }
+    };
 
-
-      // console.log("monthsStartEndDate after query", monthsStartEndDate)
-
-
-    }
-    fetchDummyData();
-  }, [])
+    fetchData();
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -146,10 +128,8 @@ export default function Component() {
     return <div>Error: {error.toString()}</div>;
   }
 
-
   const handleOpenThisMonth = () => {
     const currMonth = new Date().toLocaleString('default', { month: 'long' })
-    console.log(currMonth)
     setOpenItem([currMonth])
   };
 
@@ -158,15 +138,9 @@ export default function Component() {
     tabValue != 'week' ? setTabValue('week') : setTabValue('month');
   };
 
-  // const handleCardDetail = (item: any) => {
-  //   console.log(item)
-  // };
-
   async function navigateTasks() {
     navigate('/tasks')
   }
-
-
 
   return (
     <div className="bg-yellow-200 p-4 rounded-lg">
@@ -212,12 +186,10 @@ export default function Component() {
         value={openItem}
         onValueChange={setOpenItem}
       >
-
         {
           filteredMonthsData.length == 0 ? (<span>no data</span>)
             :
             filteredMonthsData.map((month) => {
-              // setRenderedCategories(new Set())
               const renderedCategories = new Set();
               const countPerCategory = month.countPerCategory;
               return (
@@ -230,7 +202,6 @@ export default function Component() {
                         </span>
                         <span className="font-bold">{month.name}</span>
                       </div>
-                      {/* <ChevronDownIcon className="h-4 w-4 transition-transform duration-200" /> */}
                     </div>
                   </AccordionTrigger>
                   <AccordionContent>
@@ -253,7 +224,7 @@ export default function Component() {
                               </div>
                               <div className="flex items-center mt-2 text-sm text-gray-600">
                                 <CalendarIcon className="h-4 w-4 mr-2" />
-                                <span>{item.date}</span>
+                                <span>{item.schedule}</span>
                                 <span className="mx-2">•</span>
                                 <span>{itemCount ? itemCount.count : 0} bookings</span>
                               </div>
@@ -261,158 +232,13 @@ export default function Component() {
                           )
                         })
                       }
-
-
-                      {/* {month.items.map((item, itemIndex) => (
-                        <div key={item.category} className={`${colors[itemIndex % 3]} p-4 rounded-lg`} onClick={() => navigateTasks()}>
-                          <div className="flex justify-between items-center">
-                            <h3 className="text-3xl font-bold">{categoryMapping[item.category]}</h3>
-                            <Button size="sm" variant="outline" className="bg-white">
-                              Detail
-                            </Button>
-                          </div>
-                          <div className="flex items-center mt-2 text-sm text-gray-600">
-                            <CalendarIcon className="h-4 w-4 mr-2" />
-                            <span>{item.date}</span>
-                            <span className="mx-2">•</span>
-                            <span>{month.events} bookings</span>
-                          </div>
-                        </div>
-                      ))} */}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
               )
-            }
-            )
+            })
         }
-
-
-
       </Accordion>
     </div>
   )
 }
-
-
-//dummy data
-
-// const months = [
-//   {
-//     name: 'May',
-//     events: 1,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 30 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 15 },
-//     ]
-//   },
-//   {
-//     name: 'June',
-//     events: 1,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 35 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 11 },
-//     ]
-//   },
-//   {
-//     name: 'July',
-//     events: 1,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 10 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 10 },
-//     ]
-//   },
-//   {
-//     name: 'August',
-//     events: 3,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 10 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 10 },
-//     ]
-//   },
-//   {
-//     name: 'September',
-//     events: 1,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 10 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 10 },
-//     ]
-//   },
-//   {
-//     name: 'October',
-//     events: 1,
-//     items: [
-//       { title: 'Product sharing', date: '05 mins', time: '10:00am', bookings: 10 },
-//       { title: 'Drugstore visit', date: '60 mins', time: '11:30am', bookings: 10 },
-//       { title: 'Meeting Doctor', date: '60 mins', time: '2:00pm', bookings: 10 },
-//     ]
-//   },
-// ]
-
-// const monthsActivity = [
-//   {
-//     name: 'January',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'February',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'March',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'April',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'May',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'June',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'July',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'August',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'September',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'October',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'November',
-//     events: 0,
-//     items: []
-//   },
-//   {
-//     name: 'December',
-//     events: 0,
-//     items: []
-//   },
-// ];
