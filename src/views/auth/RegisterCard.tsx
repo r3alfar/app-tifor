@@ -29,12 +29,6 @@ interface RegisterProps extends CardProps {
   onSwitchToLogin: () => void;
 }
 
-interface NewUser {
-  fullname: string;
-  employee_id: string;
-  email: string;
-  createdAt: Number;
-}
 
 const formSchema = z
   .object({
@@ -127,13 +121,13 @@ function RegisterCard({ onSwitchToLogin, className, ...props }: RegisterProps) {
     //   });
 
       try {
-        const res = await window.api.post(
+        await window.api.post(
           `${import.meta.env.VITE_BACKEND_BASE_URL}/auth/register`,
           {
             email: values.email,
             password: values.password,
             fullname: values.fullname,
-            employeee_id: values.employee_id,
+            employee_id: values.employee_id
           },
           {
             headers: {

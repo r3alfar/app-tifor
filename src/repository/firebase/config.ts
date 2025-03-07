@@ -1,9 +1,9 @@
-import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAuth } from 'firebase/auth';
+// import { initializeApp } from 'firebase/app';
+// import { getFirestore } from 'firebase/firestore';
+// import { getStorage } from 'firebase/storage';
+// import { getAuth } from 'firebase/auth';
 // // // TODO: Replace the following with your app's Firebase project configuration
-const firebaseConfig = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG);
+// const firebaseConfinpxg = JSON.parse(import.meta.env.VITE_FIREBASE_CONFIG);
 
 // export const firebaseAppInitialize = () => {
 //   initializeApp(firebaseConfig);

@@ -126,7 +126,7 @@ export default function TasksPage() {
     try {
       // const userId = JSON.parse(localStorage.getItem("userDetail") || '{}').id;
 
-      const updateActivity = await window.api.patch(
+       await window.api.patch(
         `${import.meta.env.VITE_DIRECTUS_BASE_URL}/items/activity/${taskId}`,
         {
           status: newStatus,

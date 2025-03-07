@@ -5,8 +5,8 @@ import {
   CheckCircledIcon,
   CircleIcon,
   CrossCircledIcon,
-  QuestionMarkCircledIcon,
-  StopwatchIcon,
+  // QuestionMarkCircledIcon,
+  // StopwatchIcon,
 } from "@radix-ui/react-icons"
 
 export const categories = [
