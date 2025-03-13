@@ -4,6 +4,7 @@ import { CalendarIcon } from 'lucide-react'
 import { useEffect, useState } from "react"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useNavigate } from "react-router-dom"
+import { DailyList } from "./DailyList"
 
 export const categoryMapping: {
   [key: string]: string
@@ -26,7 +27,7 @@ const colors = ['bg-blue-100', 'bg-pink-100', 'bg-green-100']
 
 export default function Component() {
   const [openItem, setOpenItem] = useState<string[]>([]);
-  const [tabValue, setTabValue] = useState<string>('month');
+  const [tabValue, setTabValue] = useState<string>('daily');
   
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -134,8 +135,8 @@ export default function Component() {
   };
 
   const handleTabValue = () => {
-    tabValue != 'month' ? setTabValue('month') : setTabValue('week');
-    tabValue != 'week' ? setTabValue('week') : setTabValue('month');
+    tabValue != 'month' ? setTabValue('month') : setTabValue('daily');
+    tabValue != 'daily' ? setTabValue('daily') : setTabValue('month');
   };
 
   async function navigateTasks() {
@@ -163,10 +164,10 @@ export default function Component() {
             >
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger
-                  value="week"
+                  value="daily"
                   className={`rounded-full text-sm font-medium transition-all data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=inactive]:bg-transparent data-[state=inactive]:text-gray-800`}
                 >
-                  Week
+                  Daily
                 </TabsTrigger>
                 <TabsTrigger
                   value="month"
@@ -187,7 +188,12 @@ export default function Component() {
         onValueChange={setOpenItem}
       >
         {
-          filteredMonthsData.length == 0 ? (<span>no data</span>)
+          tabValue == 'daily' ? (
+            <DailyList/>
+          ) :
+
+          (
+            filteredMonthsData.length == 0 ? (<span>no data</span>)
             :
             filteredMonthsData.map((month) => {
               const renderedCategories = new Set();
@@ -237,6 +243,9 @@ export default function Component() {
                 </AccordionItem>
               )
             })
+          )
+
+          
         }
       </Accordion>
     </div>
